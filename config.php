@@ -87,6 +87,57 @@ function responderJson(array $dados, int $codigoHttp = 200): void
 }
 
 // ---------------------------------------------------------------------------
+// Sessões — helpers compartilhados pelas APIs
+// ---------------------------------------------------------------------------
+
+/**
+ * Busca a sessão mais recente com este código (ativa ou não).
+ * Códigos podem se repetir entre sessões antigas; a mais recente é a válida.
+ */
+function buscarSessaoPorCodigo(PDO $bd, string $codigo): ?array
+{
+    $stmt = $bd->prepare(
+        'SELECT *, (controle_visto_em IS NOT NULL
+                    AND controle_visto_em >= NOW() - INTERVAL 4 SECOND) AS controle_conectado
+           FROM sessoes
+          WHERE codigo = ?
+          ORDER BY id DESC
+          LIMIT 1'
+    );
+    $stmt->execute([$codigo]);
+    $sessao = $stmt->fetch();
+
+    return $sessao === false ? null : $sessao;
+}
+
+/**
+ * Converte uma linha da tabela sessoes no JSON de estado devolvido
+ * por api/estado.php e api/comando.php (formato único).
+ */
+function formatarEstadoSessao(array $sessao): array
+{
+    return [
+        'ok'                 => true,
+        'slide_atual'        => (int) $sessao['slide_atual'],
+        'total_slides'       => (int) $sessao['total_slides'],
+        'blackout'           => (bool) $sessao['blackout'],
+        'ativa'              => (bool) $sessao['ativa'],
+        'controle_conectado' => (bool) ($sessao['controle_conectado'] ?? false),
+        'origem'             => $sessao['origem'],
+        'file_id'            => $sessao['file_id'],
+        'atualizado_em'      => $sessao['atualizada_em'],
+    ];
+}
+
+/**
+ * Valida o código de pareamento vindo da requisição (sempre 4 dígitos).
+ */
+function validarCodigoSessao(string $codigo): bool
+{
+    return preg_match('/^[0-9]{4}$/', $codigo) === 1;
+}
+
+// ---------------------------------------------------------------------------
 // Identificação de arquivos do Google Drive / Google Slides
 // ---------------------------------------------------------------------------
 

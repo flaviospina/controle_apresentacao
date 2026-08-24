@@ -28,6 +28,10 @@ CREATE TABLE IF NOT EXISTS sessoes (
     slide_atual    SMALLINT UNSIGNED NOT NULL DEFAULT 1,
     blackout       TINYINT(1)        NOT NULL DEFAULT 0,
 
+    -- Última vez que o celular consultou/comandou esta sessão.
+    -- Alimenta o indicador "celular pareado" na lousa.
+    controle_visto_em DATETIME       DEFAULT NULL,
+
     -- Controle de ciclo de vida.
     criada_em      DATETIME          NOT NULL DEFAULT CURRENT_TIMESTAMP,
     atualizada_em  DATETIME          NOT NULL DEFAULT CURRENT_TIMESTAMP
