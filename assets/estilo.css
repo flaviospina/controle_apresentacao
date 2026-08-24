@@ -343,3 +343,270 @@ kbd {
   border-radius: 999px;
   white-space: nowrap;
 }
+
+/* ==========================================================================
+   CELULAR — controle.php (mobile-first)
+   ========================================================================== */
+
+.pagina-controle {
+  background: var(--cor-fundo-escuro);
+  overflow: hidden;
+  /* Evita gestos acidentais de zoom/scroll durante a apresentação */
+  touch-action: manipulation;
+  overscroll-behavior: none;
+}
+
+.campo-codigo {
+  width: 100%;
+  font-size: 2.4rem;
+  text-align: center;
+  letter-spacing: 0.4em;
+  text-indent: 0.4em;
+  padding: 10px 0 12px;
+  border: 1px solid var(--cor-borda);
+  border-radius: 10px;
+  background: #fbfcfe;
+  color: var(--cor-texto);
+  outline: none;
+}
+
+.campo-codigo:focus {
+  border-color: var(--cor-primaria-clara);
+  box-shadow: 0 0 0 3px rgba(59, 108, 176, 0.18);
+}
+
+#tela-controle {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  color: var(--cor-texto-claro);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* --------- Cabeçalho: conexão, contador e cronômetro --------- */
+
+#cabecalho-controle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--cor-superficie-escura);
+  font-size: 0.95rem;
+}
+
+.titulo-app {
+  color: #93a4b8;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+#ponto-conexao {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+#ponto-conexao.ok    { background: var(--cor-ok); }
+#ponto-conexao.falha { background: var(--cor-erro); }
+
+#contador {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+#cronometro {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: transparent;
+  color: var(--cor-texto-claro);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+/* --------- Miniaturas do slide atual e do próximo --------- */
+
+#minis {
+  display: flex;
+  gap: 10px;
+  padding: 10px 14px 0;
+}
+
+#minis figure {
+  margin: 0;
+  flex: 1;
+  text-align: center;
+}
+
+#minis img {
+  width: 100%;
+  max-height: 21vh;
+  object-fit: contain;
+  border-radius: 6px;
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+#minis figcaption {
+  font-size: 0.72rem;
+  color: #93a4b8;
+  margin-top: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* --------- Áreas grandes de toque: Anterior / Próximo --------- */
+
+#area-toques {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  min-height: 0;
+}
+
+.botao-toque {
+  border: none;
+  border-radius: 16px;
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 700;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.botao-toque .seta { font-size: 2rem; line-height: 1; }
+
+.botao-toque:active { filter: brightness(1.25); }
+
+#botao-anterior {
+  flex: 2;
+  background: #273449;
+}
+
+#botao-proximo {
+  flex: 3;
+  background: var(--cor-primaria);
+}
+
+/* --------- Rodapé: tela preta, grade e encerrar --------- */
+
+#rodape-controle {
+  display: flex;
+  gap: 8px;
+  padding: 0 14px calc(12px + env(safe-area-inset-bottom, 0px));
+}
+
+#rodape-controle button {
+  flex: 1;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: var(--cor-superficie-escura);
+  color: var(--cor-texto-claro);
+  border-radius: 12px;
+  padding: 13px 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#rodape-controle button span {
+  display: block;
+  font-size: 1.05rem;
+  margin-bottom: 2px;
+}
+
+#rodape-controle button:active { filter: brightness(1.3); }
+
+#botao-blackout.ativo {
+  background: var(--cor-atencao);
+  border-color: var(--cor-atencao);
+  color: #fff;
+}
+
+#botao-encerrar { color: #f2a5a0; }
+
+/* --------- Grade de miniaturas (ir para slide) --------- */
+
+#grade-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: var(--cor-fundo-escuro);
+  display: flex;
+  flex-direction: column;
+}
+
+#grade-overlay header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px;
+  background: var(--cor-superficie-escura);
+  color: var(--cor-texto-claro);
+  font-weight: 600;
+}
+
+#fechar-grade {
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--cor-texto-claro);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+#grade-slides {
+  flex: 1;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 14px;
+  align-content: start;
+}
+
+.grade-item {
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: var(--cor-superficie-escura);
+  color: var(--cor-texto-claro);
+  padding: 6px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.grade-item img {
+  width: 100%;
+  border-radius: 4px;
+  display: block;
+  margin-bottom: 4px;
+  background: #000;
+}
+
+.grade-item span { font-size: 0.85rem; font-weight: 600; }
+
+.grade-item.atual {
+  border-color: var(--cor-primaria-clara);
+  background: #1d2c42;
+}
+
+/* --------- Fim da apresentação (celular) --------- */
+
+.pagina-controle .sobreposicao {
+  position: fixed;
+  z-index: 90;
+}

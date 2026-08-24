@@ -416,13 +416,319 @@
   }
 
   // ==================================================================
-  // CELULAR — controle.php (implementado na Fase 5)
+  // CELULAR — controle.php
   // ==================================================================
 
   function iniciarControle() {
-    if (window.SLIDEREMOTE_INICIAR_CONTROLE) {
-      window.SLIDEREMOTE_INICIAR_CONTROLE();
+    var telaCodigo    = $('tela-codigo');
+    var telaControle  = $('tela-controle');
+    var formCodigo    = $('form-codigo');
+    var campoCodigo   = $('campo-codigo');
+    var botaoConectar = $('botao-conectar');
+    var erroCodigo    = $('erro-codigo');
+    var pontoConexao  = $('ponto-conexao');
+    var contador      = $('contador');
+    var cronometroEl  = $('cronometro');
+    var minis         = $('minis');
+    var miniAtual     = $('mini-atual');
+    var miniProximo   = $('mini-proximo');
+    var botaoAnterior = $('botao-anterior');
+    var botaoProximo  = $('botao-proximo');
+    var botaoBlackout = $('botao-blackout');
+    var botaoGrade    = $('botao-grade');
+    var botaoEncerrar = $('botao-encerrar');
+    var gradeOverlay  = $('grade-overlay');
+    var gradeSlides   = $('grade-slides');
+    var fimOverlay    = $('fim-overlay');
+
+    var controle = {
+      codigo: null,
+      fileId: null,
+      slideAtual: 1,
+      totalSlides: 0,
+      blackout: false,
+      encerrada: false,
+      miniaturas: [],        // dataURLs por página (1-based no índice 0)
+      gradeMontada: false,
+      inicioCronometro: null,
+      timerPolling: null,
+      timerCronometro: null,
+      consultaEmVoo: false,
+      wakeLock: null
+    };
+
+    // ---------------- Entrada pelo código ou QR Code ----------------
+
+    var parametros = new URLSearchParams(location.search);
+    var codigoUrl = (parametros.get('c') || '').trim();
+
+    formCodigo.addEventListener('submit', function (evento) {
+      evento.preventDefault();
+      var codigo = campoCodigo.value.replace(/\D/g, '');
+      if (codigo.length !== 4) {
+        mostrarErroCodigo('O código tem 4 dígitos.');
+        return;
+      }
+      entrar(codigo);
+    });
+
+    // Conecta sozinho quando o 4º dígito é digitado.
+    campoCodigo.addEventListener('input', function () {
+      campoCodigo.value = campoCodigo.value.replace(/\D/g, '').slice(0, 4);
+      if (campoCodigo.value.length === 4) {
+        entrar(campoCodigo.value);
+      }
+    });
+
+    if (/^[0-9]{4}$/.test(codigoUrl)) {
+      entrar(codigoUrl);
+    } else {
+      campoCodigo.focus();
     }
+
+    function mostrarErroCodigo(mensagem) {
+      erroCodigo.textContent = mensagem;
+      erroCodigo.hidden = false;
+      botaoConectar.disabled = false;
+    }
+
+    function entrar(codigo) {
+      erroCodigo.hidden = true;
+      botaoConectar.disabled = true;
+      getJson(API.estado + '?c=' + encodeURIComponent(codigo) + '&papel=controle')
+        .then(function (estado) {
+          controle.codigo = codigo;
+          // Guarda o código na URL: se a página recarregar, reconecta sozinho.
+          try { history.replaceState(null, '', 'controle.php?c=' + codigo); } catch (e) { /* ok */ }
+          telaCodigo.hidden = true;
+          telaControle.hidden = false;
+          iniciarCronometro();
+          iniciarPollingControle();
+          pedirWakeLock();
+          aplicarEstadoControle(estado);
+          carregarMiniaturas(estado.file_id);
+        })
+        .catch(function (erro) {
+          mostrarErroCodigo(erro.message);
+        });
+    }
+
+    // ---------------- Comandos ----------------
+
+    function comando(acao, valor) {
+      vibrar();
+      postForm(API.comando, { c: controle.codigo, acao: acao, valor: valor, papel: 'controle' })
+        .then(function (estado) { aplicarEstadoControle(estado); })
+        .catch(function (erro) {
+          if (erro.httpStatus === 404) { encerrarControle(); }
+          // Outras falhas: o polling atualiza em seguida.
+        });
+    }
+
+    botaoProximo.addEventListener('click',  function () { comando('proximo'); });
+    botaoAnterior.addEventListener('click', function () { comando('anterior'); });
+    botaoBlackout.addEventListener('click', function () { comando('blackout'); });
+
+    botaoEncerrar.addEventListener('click', function () {
+      if (window.confirm('Encerrar a apresentação na lousa?')) {
+        comando('encerrar');
+      }
+    });
+
+    botaoGrade.addEventListener('click', function () {
+      montarGrade();
+      gradeOverlay.hidden = false;
+    });
+
+    $('fechar-grade').addEventListener('click', function () {
+      gradeOverlay.hidden = true;
+    });
+
+    $('botao-novo-codigo').addEventListener('click', function () {
+      location.href = 'controle.php';
+    });
+
+    // ---------------- Estado e polling ----------------
+
+    function iniciarPollingControle() {
+      controle.timerPolling = setInterval(function () {
+        if (controle.consultaEmVoo || controle.encerrada) { return; }
+        controle.consultaEmVoo = true;
+        getJson(API.estado + '?c=' + encodeURIComponent(controle.codigo) + '&papel=controle')
+          .then(function (estado) {
+            pontoConexao.className = 'ok';
+            pontoConexao.title = 'Conectado';
+            aplicarEstadoControle(estado);
+          })
+          .catch(function () {
+            pontoConexao.className = 'falha';
+            pontoConexao.title = 'Sem conexão — tentando de novo…';
+          })
+          .then(function () { controle.consultaEmVoo = false; });
+      }, INTERVALO_POLLING_MS);
+    }
+
+    function aplicarEstadoControle(estado) {
+      if (!estado) { return; }
+
+      if (!estado.ativa) {
+        encerrarControle();
+        return;
+      }
+
+      controle.fileId      = estado.file_id;
+      controle.slideAtual  = estado.slide_atual;
+      controle.totalSlides = estado.total_slides;
+      controle.blackout    = estado.blackout;
+
+      contador.textContent = estado.total_slides > 0
+        ? estado.slide_atual + ' / ' + estado.total_slides
+        : estado.slide_atual + ' / –';
+
+      botaoBlackout.classList.toggle('ativo', estado.blackout);
+      botaoBlackout.setAttribute('aria-pressed', estado.blackout ? 'true' : 'false');
+
+      atualizarMinis();
+      marcarSlideNaGrade();
+    }
+
+    function encerrarControle() {
+      if (controle.encerrada) { return; }
+      controle.encerrada = true;
+      if (controle.timerPolling)    { clearInterval(controle.timerPolling); }
+      if (controle.timerCronometro) { clearInterval(controle.timerCronometro); }
+      gradeOverlay.hidden = true;
+      fimOverlay.hidden = false;
+      vibrar();
+      if (controle.wakeLock) {
+        try { controle.wakeLock.release(); } catch (e) { /* ok */ }
+      }
+    }
+
+    // ---------------- Miniaturas (atual, próximo e grade) ----------------
+
+    async function carregarMiniaturas(fileId) {
+      if (!fileId) { return; }
+      try {
+        var documento = await abrirPdf(fileId, null);
+        for (var numero = 1; numero <= documento.numPages; numero++) {
+          var pagina = await documento.getPage(numero);
+          var base = pagina.getViewport({ scale: 1 });
+          var viewport = pagina.getViewport({ scale: 240 / base.width });
+          var canvas = document.createElement('canvas');
+          canvas.width  = Math.floor(viewport.width);
+          canvas.height = Math.floor(viewport.height);
+          await pagina.render({ canvasContext: canvas.getContext('2d'), viewport: viewport }).promise;
+          controle.miniaturas[numero - 1] = canvas.toDataURL('image/jpeg', 0.72);
+          if (numero === 1 || numero === controle.slideAtual || numero === controle.slideAtual + 1) {
+            atualizarMinis();
+          }
+        }
+        controle.gradeMontada = false; // remonta com as imagens completas
+        atualizarMinis();
+      } catch (erro) {
+        // Sem miniaturas o controle continua funcionando normalmente.
+        minis.hidden = true;
+      }
+    }
+
+    function atualizarMinis() {
+      var atual   = controle.miniaturas[controle.slideAtual - 1] || null;
+      var proximo = controle.miniaturas[controle.slideAtual] || null;
+
+      if (!atual && !proximo) { return; }
+      minis.hidden = false;
+
+      if (atual) { miniAtual.src = atual; }
+      miniAtual.style.visibility = atual ? 'visible' : 'hidden';
+
+      if (proximo) {
+        miniProximo.src = proximo;
+        miniProximo.style.visibility = 'visible';
+      } else {
+        miniProximo.style.visibility = 'hidden'; // último slide
+      }
+    }
+
+    function montarGrade() {
+      if (controle.gradeMontada && gradeSlides.childNodes.length === controle.totalSlides) {
+        marcarSlideNaGrade();
+        return;
+      }
+      gradeSlides.innerHTML = '';
+      for (var numero = 1; numero <= controle.totalSlides; numero++) {
+        (function (n) {
+          var botao = document.createElement('button');
+          botao.type = 'button';
+          botao.className = 'grade-item';
+          if (controle.miniaturas[n - 1]) {
+            var img = document.createElement('img');
+            img.src = controle.miniaturas[n - 1];
+            img.alt = 'Slide ' + n;
+            botao.appendChild(img);
+          }
+          var rotulo = document.createElement('span');
+          rotulo.textContent = n;
+          botao.appendChild(rotulo);
+          botao.addEventListener('click', function () {
+            gradeOverlay.hidden = true;
+            comando('ir_para', n);
+          });
+          gradeSlides.appendChild(botao);
+        })(numero);
+      }
+      controle.gradeMontada = true;
+      marcarSlideNaGrade();
+    }
+
+    function marcarSlideNaGrade() {
+      if (gradeOverlay.hidden) { return; }
+      var itens = gradeSlides.children;
+      for (var i = 0; i < itens.length; i++) {
+        itens[i].classList.toggle('atual', i === controle.slideAtual - 1);
+      }
+    }
+
+    // ---------------- Cronômetro ----------------
+
+    function iniciarCronometro() {
+      controle.inicioCronometro = Date.now();
+      controle.timerCronometro = setInterval(atualizarCronometro, 1000);
+      atualizarCronometro();
+    }
+
+    function atualizarCronometro() {
+      var segundos = Math.floor((Date.now() - controle.inicioCronometro) / 1000);
+      var h = Math.floor(segundos / 3600);
+      var m = Math.floor((segundos % 3600) / 60);
+      var s = segundos % 60;
+      var mm = (m < 10 ? '0' : '') + m;
+      var ss = (s < 10 ? '0' : '') + s;
+      cronometroEl.textContent = h > 0 ? h + ':' + mm + ':' + ss : mm + ':' + ss;
+    }
+
+    cronometroEl.addEventListener('click', function () {
+      controle.inicioCronometro = Date.now();
+      atualizarCronometro();
+      vibrar();
+    });
+
+    // ---------------- Wake Lock (tela sempre acesa) ----------------
+
+    async function pedirWakeLock() {
+      // Degradação silenciosa: sem suporte, apenas não mantém a tela acesa.
+      try {
+        if (navigator.wakeLock && navigator.wakeLock.request) {
+          controle.wakeLock = await navigator.wakeLock.request('screen');
+        }
+      } catch (e) { /* sem suporte ou sem permissão */ }
+    }
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible' && !controle.encerrada && controle.codigo) {
+        pedirWakeLock();
+      }
+    });
   }
 
   // ------------------------------------------------------------------
@@ -434,14 +740,4 @@
     if (pagina === 'apresentar') { iniciarApresentar(); }
     if (pagina === 'controle')   { iniciarControle(); }
   });
-
-  // Expostos para a Fase 5 (controle.php) reutilizar.
-  window.SLIDEREMOTE = {
-    API: API,
-    INTERVALO_POLLING_MS: INTERVALO_POLLING_MS,
-    postForm: postForm,
-    getJson: getJson,
-    abrirPdf: abrirPdf,
-    vibrar: vibrar
-  };
 })();
