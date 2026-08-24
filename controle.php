@@ -16,6 +16,7 @@ require __DIR__ . '/config.php';
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#0d1117">
 <title>SlideRemote — Controle</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%231f4e8c'/%3E%3Ctext x='50' y='70' font-size='58' text-anchor='middle' fill='white' font-family='Arial'%3ES%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="assets/estilo.css">
 </head>
 <body class="pagina-controle" data-pagina="controle">

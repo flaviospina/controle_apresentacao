@@ -1,0 +1,15 @@
+# SlideRemote — proteções básicas
+
+# O schema.sql é só para importar no phpMyAdmin; não precisa ser público.
+<Files "schema.sql">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</Files>
+
+# Nada aqui usa listagem de diretório.
+Options -Indexes

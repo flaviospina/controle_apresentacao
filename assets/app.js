@@ -255,11 +255,15 @@
         var pagina = await documento.getPage(numero);
 
         // Escala para preencher a tela da lousa com nitidez (limitada para
-        // não estourar memória em aparelhos mais fracos).
+        // não estourar memória em aparelhos mais fracos). Usa as dimensões
+        // do monitor, e não só da janela, para continuar nítido quando a
+        // apresentação entrar em tela cheia.
+        var larguraAlvo = Math.max(window.innerWidth,  (window.screen && screen.width)  || 0);
+        var alturaAlvo  = Math.max(window.innerHeight, (window.screen && screen.height) || 0);
         var base   = pagina.getViewport({ scale: 1 });
         var escala = Math.min(
-          (window.innerWidth  * dpr) / base.width,
-          (window.innerHeight * dpr) / base.height
+          (larguraAlvo * dpr) / base.width,
+          (alturaAlvo  * dpr) / base.height
         );
         escala = Math.max(0.5, Math.min(escala, 3));
         var viewport = pagina.getViewport({ scale: escala });

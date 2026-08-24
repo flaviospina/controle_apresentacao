@@ -58,7 +58,7 @@ body {
   justify-content: center;
 }
 
-.tela-clara  { background: var(--cor-fundo-claro); }
+.tela-clara  { background: var(--cor-fundo-claro); padding: 18px; }
 .tela-escura { background: var(--cor-fundo-escuro); }
 
 /* -------------------------------- Cartões ------------------------------- */
@@ -609,4 +609,16 @@ kbd {
 .pagina-controle .sobreposicao {
   position: fixed;
   z-index: 90;
+}
+
+/* --------- Celular deitado (pouca altura): botões lado a lado --------- */
+
+@media (orientation: landscape) and (max-height: 520px) {
+  #minis { display: none; }
+
+  #area-toques { flex-direction: row; }
+
+  .botao-toque {
+    flex-direction: column;
+  }
 }
