@@ -1,0 +1,345 @@
+/* ==========================================================================
+   SlideRemote — assets/estilo.css
+   Visual sóbrio, adequado a uso institucional em escola.
+   ========================================================================== */
+
+:root {
+  --cor-fundo-claro:   #f3f5f8;
+  --cor-fundo-escuro:  #0d1117;
+  --cor-superficie:    #ffffff;
+  --cor-superficie-escura: #161d27;
+  --cor-primaria:      #1f4e8c;
+  --cor-primaria-forte:#173a68;
+  --cor-primaria-clara:#3b6cb0;
+  --cor-texto:         #1c2733;
+  --cor-texto-suave:   #5a6b7d;
+  --cor-texto-claro:   #e8edf3;
+  --cor-borda:         #d4dbe4;
+  --cor-erro:          #b3261e;
+  --cor-erro-fundo:    #fdeceb;
+  --cor-ok:            #1e8e3e;
+  --cor-atencao:       #b26a00;
+  --sombra: 0 10px 30px rgba(13, 24, 38, 0.12);
+  --raio: 12px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif;
+  color: var(--cor-texto);
+  background: var(--cor-fundo-claro);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ------------------------------- Utilitários ---------------------------- */
+
+[hidden] { display: none !important; }
+
+.visualmente-oculto {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  border: 0;
+}
+
+.tela {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tela-clara  { background: var(--cor-fundo-claro); }
+.tela-escura { background: var(--cor-fundo-escuro); }
+
+/* -------------------------------- Cartões ------------------------------- */
+
+.cartao {
+  background: var(--cor-superficie);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  padding: 32px;
+  width: 100%;
+  max-width: 460px;
+  text-align: center;
+}
+
+.cartao-escuro {
+  background: var(--cor-superficie-escura);
+  color: var(--cor-texto-claro);
+}
+
+.logo {
+  margin: 0 0 4px;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--cor-primaria);
+}
+
+.logo span { color: var(--cor-texto); }
+
+.cartao-escuro .logo span { color: var(--cor-texto-claro); }
+
+.subtitulo {
+  margin: 0 0 24px;
+  color: var(--cor-texto-suave);
+  font-size: 0.95rem;
+}
+
+/* ------------------------------ Formulários ------------------------------ */
+
+.rotulo {
+  display: block;
+  text-align: left;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--cor-texto-suave);
+  margin: 0 0 6px;
+}
+
+.campo-texto {
+  width: 100%;
+  font-size: 1rem;
+  padding: 12px 14px;
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+  outline: none;
+  background: #fbfcfe;
+  color: var(--cor-texto);
+}
+
+.campo-texto:focus {
+  border-color: var(--cor-primaria-clara);
+  box-shadow: 0 0 0 3px rgba(59, 108, 176, 0.18);
+}
+
+.botao {
+  display: inline-block;
+  width: 100%;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 13px 18px;
+  margin-top: 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.botao-primario {
+  background: var(--cor-primaria);
+  color: #fff;
+}
+
+.botao-primario:hover:not(:disabled)  { background: var(--cor-primaria-forte); }
+.botao-primario:disabled              { opacity: 0.65; cursor: default; }
+
+.botao-secundario {
+  background: #e8eef6;
+  color: var(--cor-primaria);
+}
+
+.botao-secundario:hover { background: #dce6f2; }
+
+.separador {
+  display: flex;
+  align-items: center;
+  margin: 22px 0 8px;
+  color: var(--cor-texto-suave);
+  font-size: 0.85rem;
+}
+
+.separador::before,
+.separador::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--cor-borda);
+}
+
+.separador span { padding: 0 12px; }
+
+.dica {
+  font-size: 0.82rem;
+  color: var(--cor-texto-suave);
+  margin: 10px 0 0;
+  line-height: 1.45;
+}
+
+.dica-clara { color: #93a4b8; }
+
+.mensagem-erro {
+  margin: 18px 0 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: var(--cor-erro-fundo);
+  color: var(--cor-erro);
+  font-size: 0.9rem;
+  line-height: 1.45;
+  text-align: left;
+}
+
+kbd {
+  font-family: inherit;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 0.85em;
+}
+
+/* ==========================================================================
+   LOUSA — apresentar.php
+   ========================================================================== */
+
+.pagina-apresentar #tela-apresentacao {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+#palco {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#palco .slide {
+  display: none;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+#palco .slide.atual { display: block; }
+
+/* Cortina de tela preta (blackout) */
+#cortina {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  z-index: 40;
+}
+
+/* Sobreposições (carregando / encerrada) */
+.sobreposicao {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(13, 17, 23, 0.92);
+}
+
+.barra-progresso {
+  margin-top: 18px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+#progresso {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: var(--cor-primaria-clara);
+  transition: width 0.25s ease;
+}
+
+/* Painel de pareamento (código + QR) */
+#painel-pareamento {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 60;
+  background: var(--cor-superficie);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  padding: 26px 34px;
+  text-align: center;
+  max-width: 420px;
+}
+
+#painel-pareamento h2 {
+  margin: 0 0 16px;
+  font-size: 1.25rem;
+  color: var(--cor-texto);
+}
+
+#qrcode {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+#qrcode img, #qrcode canvas { border-radius: 6px; }
+
+.pareamento-instrucao {
+  font-size: 0.9rem;
+  color: var(--cor-texto-suave);
+  line-height: 1.5;
+  margin: 0;
+}
+
+#codigo-sessao {
+  font-size: 3.2rem;
+  font-weight: 700;
+  letter-spacing: 0.35em;
+  text-indent: 0.35em; /* compensa o espaçamento do último dígito */
+  color: var(--cor-primaria);
+  margin: 10px 0 4px;
+}
+
+#painel-pareamento .dica { color: var(--cor-texto-suave); }
+#painel-pareamento kbd {
+  background: #eef2f7;
+  border-color: var(--cor-borda);
+  color: var(--cor-texto);
+}
+
+/* Indicador de conexão do celular */
+#indicador-conexao {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  z-index: 70;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+}
+
+#indicador-conexao.aguardando   { background: #6b7686; }
+#indicador-conexao.conectado    { background: var(--cor-ok); }
+#indicador-conexao.sem-servidor { background: var(--cor-erro); }
+
+/* Aviso flutuante com os atalhos de teclado */
+.aviso-flutuante {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  z-index: 65;
+  background: rgba(22, 29, 39, 0.92);
+  color: var(--cor-texto-claro);
+  font-size: 0.85rem;
+  padding: 10px 18px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
