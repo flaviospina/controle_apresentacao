@@ -74,6 +74,10 @@ require __DIR__ . '/config.php';
 
   <div id="indicador-conexao" class="aguardando" title="Aguardando o celular conectar"></div>
 
+  <div id="indicador-trava" class="chip-trava" hidden>&#128274; Toque da lousa travado</div>
+
+  <div id="laser-ponto" hidden></div>
+
   <div id="aviso-teclas" class="aviso-flutuante" hidden>
     Toque na tela: tela cheia &nbsp;·&nbsp; Setas ◀ ▶: trocar slide &nbsp;·&nbsp;
     <kbd>B</kbd>: tela preta &nbsp;·&nbsp; <kbd>C</kbd>: código

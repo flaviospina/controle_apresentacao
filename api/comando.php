@@ -7,7 +7,7 @@
  *
  * Parâmetros (form-urlencoded):
  *   c      código de pareamento (4 dígitos)
- *   acao   proximo | anterior | ir_para | blackout | encerrar | definir_total
+ *   acao   proximo | anterior | ir_para | blackout | travar | encerrar | definir_total
  *   valor  número do slide (ir_para) ou total de slides (definir_total)
  *   papel  "controle" quando o comando vem do celular
  *
@@ -40,6 +40,15 @@ if ($sessao === null || !(bool) $sessao['ativa']) {
 // Marca a presença do celular junto com o comando, quando for o caso.
 $marcaControle = ($papel === 'controle') ? ', controle_visto_em = NOW()' : '';
 
+// Com a lousa travada, comandos de navegação vindos da PRÓPRIA lousa
+// (toque acidental, teclado) são recusados — só o celular comanda.
+$acoesDeNavegacao = ['proximo', 'anterior', 'ir_para', 'blackout'];
+if ($papel !== 'controle'
+    && (bool) ($sessao['lousa_travada'] ?? false)
+    && in_array($acao, $acoesDeNavegacao, true)) {
+    responderJson(formatarEstadoSessao($sessao));
+}
+
 // Todas as trocas de slide usam LEAST/GREATEST direto no SQL: a atualização
 // é atômica e nunca sai do intervalo [1, total_slides], mesmo com a lousa e
 // o celular comandando ao mesmo tempo.
@@ -70,6 +79,12 @@ switch ($acao) {
         $params = [$sessao['id']];
         break;
 
+    case 'travar':
+        // Liga/desliga a trava de toque da lousa (comando do celular).
+        $sql    = "UPDATE sessoes SET lousa_travada = 1 - lousa_travada $marcaControle WHERE id = ? AND ativa = 1";
+        $params = [$sessao['id']];
+        break;
+
     case 'encerrar':
         $sql    = "UPDATE sessoes SET ativa = 0 $marcaControle WHERE id = ?";
         $params = [$sessao['id']];
@@ -86,7 +101,7 @@ switch ($acao) {
         break;
 
     default:
-        responderJson(['erro' => 'Ação desconhecida. Use: proximo, anterior, ir_para, blackout, encerrar ou definir_total.'], 422);
+        responderJson(['erro' => 'Ação desconhecida. Use: proximo, anterior, ir_para, blackout, travar, encerrar ou definir_total.'], 422);
 }
 
 $stmt = $bd->prepare($sql);

@@ -15,10 +15,13 @@
     sessao:  'api/sessao.php',
     estado:  'api/estado.php',
     comando: 'api/comando.php',
+    laser:   'api/laser.php',
     proxy:   'proxy_pdf.php'
   };
 
   var INTERVALO_POLLING_MS = 500;
+  var INTERVALO_LASER_MS   = 120;  // consulta rápida da lousa com o laser ligado
+  var INTERVALO_ENVIO_LASER_MS = 80; // limite de envio de posição pelo celular
 
   // ------------------------------------------------------------------
   // Helpers comuns
@@ -120,6 +123,8 @@
     var cortina         = $('cortina');
     var painel          = $('painel-pareamento');
     var indicador       = $('indicador-conexao');
+    var indicadorTrava  = $('indicador-trava');
+    var laserPonto      = $('laser-ponto');
     var avisoTeclas     = $('aviso-teclas');
     var telaEncerrada   = $('tela-encerrada');
 
@@ -129,12 +134,15 @@
       slideAtual: 1,
       totalSlides: 0,
       blackout: false,
+      travada: false,
       encerrada: false,
       conectado: false,
       jaConectou: false,     // o celular já se conectou ao menos uma vez
       canvases: [],
       timerPolling: null,
-      consultaEmVoo: false
+      consultaEmVoo: false,
+      timerLaser: null,
+      laserSemSinal: 0
     };
 
     // ---------------- Tela inicial ----------------
@@ -336,6 +344,15 @@
         cortina.hidden = !estado.blackout;
       }
 
+      if (estado.lousa_travada !== sessao.travada) {
+        sessao.travada = estado.lousa_travada;
+        indicadorTrava.hidden = !estado.lousa_travada;
+      }
+
+      if (estado.laser_ativo && sessao.timerLaser === null) {
+        iniciarLaser();
+      }
+
       sessao.conectado = estado.controle_conectado;
       if (estado.controle_conectado) {
         indicador.className = 'conectado';
@@ -350,9 +367,53 @@
       }
     }
 
+    // ---------------- Caneta laser (ponto vermelho na lousa) ----------------
+
+    // Enquanto o laser está ligado no celular, a lousa consulta a posição
+    // num ritmo bem mais rápido que o polling normal. O loop se desliga
+    // sozinho quando o sinal some (o estado normal religa se voltar).
+    function iniciarLaser() {
+      sessao.laserSemSinal = 0;
+      laserPonto.hidden = false;
+      sessao.timerLaser = setInterval(function () {
+        getJson(API.laser + '?c=' + encodeURIComponent(sessao.codigo))
+          .then(function (resposta) {
+            if (resposta.ativo) {
+              sessao.laserSemSinal = 0;
+              posicionarLaser(resposta.x, resposta.y);
+            } else {
+              perderSinalLaser();
+            }
+          })
+          .catch(function () { perderSinalLaser(); });
+      }, INTERVALO_LASER_MS);
+    }
+
+    function perderSinalLaser() {
+      sessao.laserSemSinal += 1;
+      if (sessao.laserSemSinal >= 5) { pararLaser(); }
+    }
+
+    function pararLaser() {
+      if (sessao.timerLaser !== null) {
+        clearInterval(sessao.timerLaser);
+        sessao.timerLaser = null;
+      }
+      laserPonto.hidden = true;
+    }
+
+    function posicionarLaser(x, y) {
+      var canvas = sessao.canvases[sessao.slideAtual - 1];
+      if (!canvas) { return; }
+      var area = canvas.getBoundingClientRect();
+      laserPonto.style.left = Math.round(area.left + x * area.width)  + 'px';
+      laserPonto.style.top  = Math.round(area.top  + y * area.height) + 'px';
+    }
+
     function encerrarApresentacao() {
       sessao.encerrada = true;
       if (sessao.timerPolling) { clearInterval(sessao.timerPolling); }
+      pararLaser();
       cortina.hidden = true;
       painel.hidden = true;
       telaEncerrada.hidden = false;
@@ -376,12 +437,12 @@
       var tecla = evento.key;
       if (tecla === 'ArrowRight' || tecla === 'PageDown' || tecla === ' ') {
         evento.preventDefault();
-        comandoLocal('proximo');
+        if (!sessao.travada) { comandoLocal('proximo'); } else { avisarTravada(); }
       } else if (tecla === 'ArrowLeft' || tecla === 'PageUp') {
         evento.preventDefault();
-        comandoLocal('anterior');
+        if (!sessao.travada) { comandoLocal('anterior'); } else { avisarTravada(); }
       } else if (tecla === 'b' || tecla === 'B') {
-        comandoLocal('blackout');
+        if (!sessao.travada) { comandoLocal('blackout'); } else { avisarTravada(); }
       } else if (tecla === 'c' || tecla === 'C') {
         painel.hidden = !painel.hidden;
       } else if (tecla === 'f' || tecla === 'F') {
@@ -390,16 +451,32 @@
     });
 
     // Primeiro toque/clique na tela entra em tela cheia; os toques
-    // seguintes avançam o slide (útil na própria lousa).
+    // seguintes avançam o slide (útil na própria lousa). Com a trava
+    // ligada, toques na lousa não fazem nada — só o celular comanda.
     telaApresentacao.addEventListener('click', function (evento) {
       if (sessao.encerrada || sessao.totalSlides === 0) { return; }
       if (painel.contains(evento.target) || telaEncerrada.contains(evento.target)) { return; }
+      if (sessao.travada) {
+        avisarTravada();
+        return;
+      }
       if (!estaEmTelaCheia()) {
         alternarTelaCheia();
       } else {
         comandoLocal('proximo');
       }
     });
+
+    // Pisca o aviso de trava para explicar por que o toque foi ignorado.
+    var timerAvisoTrava = null;
+    function avisarTravada() {
+      indicadorTrava.hidden = false;
+      indicadorTrava.classList.add('destaque');
+      if (timerAvisoTrava) { clearTimeout(timerAvisoTrava); }
+      timerAvisoTrava = setTimeout(function () {
+        indicadorTrava.classList.remove('destaque');
+      }, 900);
+    }
 
     function estaEmTelaCheia() {
       return !!(document.fullscreenElement || document.webkitFullscreenElement);
@@ -439,6 +516,12 @@
     var botaoAnterior = $('botao-anterior');
     var botaoProximo  = $('botao-proximo');
     var botaoBlackout = $('botao-blackout');
+    var botaoTravar   = $('botao-travar');
+    var rotuloTravar  = $('rotulo-travar');
+    var botaoLaser    = $('botao-laser');
+    var rotuloLaser   = $('rotulo-laser');
+    var laserOverlay  = $('laser-touch-overlay');
+    var laserArea     = $('laser-touch-area');
     var botaoGrade    = $('botao-grade');
     var botaoEncerrar = $('botao-encerrar');
     var gradeOverlay  = $('grade-overlay');
@@ -532,6 +615,7 @@
     botaoProximo.addEventListener('click',  function () { comando('proximo'); });
     botaoAnterior.addEventListener('click', function () { comando('anterior'); });
     botaoBlackout.addEventListener('click', function () { comando('blackout'); });
+    botaoTravar.addEventListener('click',   function () { comando('travar'); });
 
     botaoEncerrar.addEventListener('click', function () {
       if (window.confirm('Encerrar a apresentação na lousa?')) {
@@ -592,12 +676,17 @@
       botaoBlackout.classList.toggle('ativo', estado.blackout);
       botaoBlackout.setAttribute('aria-pressed', estado.blackout ? 'true' : 'false');
 
+      botaoTravar.classList.toggle('ativo', estado.lousa_travada);
+      botaoTravar.setAttribute('aria-pressed', estado.lousa_travada ? 'true' : 'false');
+      rotuloTravar.textContent = estado.lousa_travada ? 'Lousa travada' : 'Travar lousa';
+
       atualizarMinis();
       marcarSlideNaGrade();
     }
 
     function encerrarControle() {
       if (controle.encerrada) { return; }
+      desligarLaser();
       controle.encerrada = true;
       if (controle.timerPolling)    { clearInterval(controle.timerPolling); }
       if (controle.timerCronometro) { clearInterval(controle.timerCronometro); }
@@ -691,6 +780,150 @@
       for (var i = 0; i < itens.length; i++) {
         itens[i].classList.toggle('atual', i === controle.slideAtual - 1);
       }
+    }
+
+    // ---------------- Caneta laser ----------------
+    //
+    // Com o laser ligado, o celular envia a posição para api/laser.php.
+    // A posição vem do sensor de orientação (mover o celular aponta o
+    // laser); sem sensor ou sem permissão, abre o modo touchpad
+    // (arrastar o dedo). Um reenvio a cada 400 ms mantém o ponto aceso
+    // na lousa mesmo com o celular parado.
+
+    var laser = {
+      ligado: false,
+      centroAlpha: null,
+      centroBeta: null,
+      x: 0.5,
+      y: 0.5,
+      ultimoEnvio: 0,
+      timerHeartbeat: null,
+      timerEsperaSensor: null,
+      recebeuSensor: false,
+      usaToque: false
+    };
+
+    botaoLaser.addEventListener('click', function () {
+      if (laser.ligado) { desligarLaser(); } else { ligarLaser(); }
+    });
+
+    $('botao-fechar-laser').addEventListener('click', desligarLaser);
+
+    function ligarLaser() {
+      laser.ligado = true;
+      laser.x = 0.5;
+      laser.y = 0.5;
+      laser.centroAlpha = null;   // recalibra o centro a cada ativação
+      laser.centroBeta = null;
+      laser.recebeuSensor = false;
+      laser.usaToque = false;
+
+      botaoLaser.classList.add('ativo');
+      botaoLaser.setAttribute('aria-pressed', 'true');
+      rotuloLaser.textContent = 'Laser ligado';
+      vibrar();
+
+      enviarLaser(true);
+      laser.timerHeartbeat = setInterval(function () { enviarLaser(true); }, 400);
+
+      var comecarSensor = function () {
+        window.addEventListener('deviceorientation', aoMoverSensor);
+        // Sem nenhuma leitura do sensor em 1,2 s → cai para o touchpad.
+        laser.timerEsperaSensor = setTimeout(function () {
+          if (!laser.recebeuSensor && laser.ligado) { ativarModoToque(); }
+        }, 1200);
+      };
+
+      if (typeof DeviceOrientationEvent !== 'undefined'
+          && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        // iPhone/iPad: o navegador pergunta ao usuário (dentro do toque).
+        DeviceOrientationEvent.requestPermission()
+          .then(function (resposta) {
+            if (resposta === 'granted') { comecarSensor(); } else { ativarModoToque(); }
+          })
+          .catch(function () { ativarModoToque(); });
+      } else if (window.DeviceOrientationEvent) {
+        comecarSensor();
+      } else {
+        ativarModoToque();
+      }
+    }
+
+    function desligarLaser() {
+      if (!laser.ligado) { return; }
+      laser.ligado = false;
+      window.removeEventListener('deviceorientation', aoMoverSensor);
+      if (laser.timerHeartbeat)    { clearInterval(laser.timerHeartbeat); laser.timerHeartbeat = null; }
+      if (laser.timerEsperaSensor) { clearTimeout(laser.timerEsperaSensor); }
+      laserOverlay.hidden = true;
+      botaoLaser.classList.remove('ativo');
+      botaoLaser.setAttribute('aria-pressed', 'false');
+      rotuloLaser.textContent = 'Laser';
+      vibrar();
+      postForm(API.laser, { c: controle.codigo, ativo: 0 }).catch(function () {});
+    }
+
+    function aoMoverSensor(evento) {
+      if (!laser.ligado || laser.usaToque) { return; }
+      if (evento.alpha === null || evento.beta === null) { return; }
+      laser.recebeuSensor = true;
+
+      // A primeira leitura vira o "centro": segurar o celular apontando
+      // para a lousa e ligar o laser deixa o ponto no meio da tela.
+      if (laser.centroAlpha === null) {
+        laser.centroAlpha = evento.alpha;
+        laser.centroBeta  = evento.beta;
+      }
+
+      // alpha (giro esquerda/direita) controla X; beta (inclinar para
+      // cima/baixo) controla Y. ±18° varrem a lousa inteira.
+      var dAlpha = evento.alpha - laser.centroAlpha;
+      if (dAlpha > 180) { dAlpha -= 360; } else if (dAlpha < -180) { dAlpha += 360; }
+      var dBeta = evento.beta - laser.centroBeta;
+
+      laser.x = limitar01(0.5 - dAlpha / 36);
+      laser.y = limitar01(0.5 - dBeta / 36);
+      enviarLaser(false);
+    }
+
+    function ativarModoToque() {
+      laser.usaToque = true;
+      laserOverlay.hidden = false;
+    }
+
+    function aoArrastarNoTouchpad(evento) {
+      if (!laser.ligado) { return; }
+      var toque = evento.touches && evento.touches.length ? evento.touches[0] : evento;
+      var area = laserArea.getBoundingClientRect();
+      laser.x = limitar01((toque.clientX - area.left) / area.width);
+      laser.y = limitar01((toque.clientY - area.top)  / area.height);
+      if (evento.cancelable) { evento.preventDefault(); }
+      enviarLaser(false);
+    }
+
+    laserArea.addEventListener('touchstart', aoArrastarNoTouchpad, { passive: false });
+    laserArea.addEventListener('touchmove',  aoArrastarNoTouchpad, { passive: false });
+    // Mouse: útil para testar o touchpad num computador.
+    laserArea.addEventListener('mousedown',  aoArrastarNoTouchpad);
+    laserArea.addEventListener('mousemove',  function (evento) {
+      if (evento.buttons === 1) { aoArrastarNoTouchpad(evento); }
+    });
+
+    function limitar01(valor) {
+      return Math.max(0, Math.min(1, valor));
+    }
+
+    function enviarLaser(forcar) {
+      if (!laser.ligado || !controle.codigo) { return; }
+      var agora = Date.now();
+      if (!forcar && (agora - laser.ultimoEnvio) < INTERVALO_ENVIO_LASER_MS) { return; }
+      laser.ultimoEnvio = agora;
+      postForm(API.laser, {
+        c: controle.codigo,
+        ativo: 1,
+        x: laser.x.toFixed(4),
+        y: laser.y.toFixed(4)
+      }).catch(function () { /* posição seguinte compensa */ });
     }
 
     // ---------------- Cronômetro ----------------

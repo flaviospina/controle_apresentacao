@@ -71,16 +71,30 @@ require __DIR__ . '/config.php';
   </main>
 
   <footer id="rodape-controle">
-    <button type="button" id="botao-blackout" aria-pressed="false">
+    <button type="button" id="botao-laser" class="rodape-meio" aria-pressed="false">
+      <span aria-hidden="true">☄</span> <em id="rotulo-laser">Laser</em>
+    </button>
+    <button type="button" id="botao-blackout" class="rodape-meio" aria-pressed="false">
       <span aria-hidden="true">◼</span> Tela preta
     </button>
-    <button type="button" id="botao-grade">
+    <button type="button" id="botao-travar" class="rodape-meio" aria-pressed="false">
+      <span aria-hidden="true">&#128274;</span> <em id="rotulo-travar">Travar lousa</em>
+    </button>
+    <button type="button" id="botao-grade" class="rodape-largo">
       <span aria-hidden="true">▦</span> Ir para slide
     </button>
-    <button type="button" id="botao-encerrar">
+    <button type="button" id="botao-encerrar" class="rodape-largo">
       <span aria-hidden="true">⏻</span> Encerrar
     </button>
   </footer>
+
+  <!-- Modo touchpad do laser: usado quando o celular não tem sensor de
+       movimento (ou a permissão foi negada). -->
+  <div id="laser-touch-overlay" hidden>
+    <p>Arraste o dedo para mover o laser na lousa</p>
+    <div id="laser-touch-area" aria-label="Área de toque do laser"></div>
+    <button type="button" id="botao-fechar-laser" class="botao botao-primario">Desligar laser</button>
+  </div>
 
   <!-- Grade de miniaturas para pular direto a um slide -->
   <div id="grade-overlay" hidden>

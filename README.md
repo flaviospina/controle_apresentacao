@@ -6,7 +6,9 @@ como controle remoto — pela rede, sem nenhum hardware apontador.
 Na lousa, abra `apresentar.php`, informe o link do Google Slides/Drive
 (ou envie um PDF) e conecte o celular pelo **QR Code** ou pelo **código de
 4 dígitos**. Do celular você avança e retrocede slides, ativa a tela preta,
-pula direto para um slide pela grade de miniaturas e acompanha o contador
+pula direto para um slide pela grade de miniaturas, **trava o toque da
+lousa** (toques acidentais não trocam slide), aponta com a **caneta laser**
+(um ponto vermelho que segue o movimento do celular) e acompanha o contador
 e o cronômetro.
 
 - **Stack**: PHP 8.2+ e MySQL, HTML/CSS/JavaScript puro (sem Node, sem build).
@@ -22,11 +24,13 @@ slideremote/
 ├── proxy_pdf.php      ← baixa a apresentação do Google e serve o PDF
 ├── config.php         ← credenciais do banco (ÚNICO arquivo a editar)
 ├── schema.sql         ← estrutura do banco (importar no phpMyAdmin)
+├── atualizacao_v2.sql ← só para quem instalou a versão anterior
 ├── .htaccess          ← proteções básicas
 ├── api/
 │   ├── sessao.php     ← cria a sessão e devolve o código
 │   ├── estado.php     ← estado atual (consultado a cada 500 ms)
-│   └── comando.php    ← próximo/anterior/ir para/tela preta/encerrar
+│   ├── comando.php    ← próximo/anterior/ir para/tela preta/travar/encerrar
+│   └── laser.php      ← canal rápido da posição da caneta laser
 ├── assets/
 │   ├── estilo.css
 │   └── app.js
@@ -117,7 +121,20 @@ Para a lousa conseguir baixar a apresentação, ela precisa estar visível para
    **Ir para slide** (grade), contador e cronômetro (toque no cronômetro
    para zerar). O celular vibra a cada comando e a tela não apaga
    (em aparelhos com suporte a Wake Lock).
-6. Ao terminar, **Encerrar** no celular fecha a sessão nas duas telas.
+6. **Travar lousa**: com a trava ligada, toques e teclas na própria lousa
+   não trocam de slide — útil quando alunos encostam na tela. Só o celular
+   comanda (o bloqueio também vale no servidor). A lousa mostra um aviso
+   discreto de "toque travado" no canto.
+7. **Laser**: toque em **Laser** e mova o celular — um ponto vermelho
+   acompanha o movimento na lousa (gire para os lados para mover na
+   horizontal, incline para cima/baixo para a vertical; ±18° varrem a tela
+   toda). Ligar o laser apontando o celular para a lousa deixa o ponto no
+   centro; desligue e ligue de novo para recalibrar. No iPhone o navegador
+   pede permissão de "movimento e orientação" no primeiro uso. Sem sensor
+   (ou permissão negada), abre um **touchpad**: arraste o dedo para mover
+   o ponto. O movimento tem um pequeno atraso (~0,3 s), normal em
+   hospedagem compartilhada.
+8. Ao terminar, **Encerrar** no celular fecha a sessão nas duas telas.
 
 Se a conexão do celular cair, a lousa **mantém o slide atual** — nada volta
 ao início. As setas do teclado da lousa (◀ ▶) seguem funcionando como
@@ -156,6 +173,19 @@ Faça este ensaio **na rede da escola**, alguns dias antes:
 | Código de 4 dígitos não aceito no celular | O código muda a cada sessão — use o que está na lousa **agora**. Sessões paradas há mais de 6 h expiram. |
 | Celular vibrou mas o slide não trocou | Veja o pontinho no cabeçalho do celular: vermelho = sem internet no celular. A lousa mantém o slide atual até a conexão voltar. |
 | A tela do celular apaga durante a aula | Aparelhos sem Wake Lock: aumente o tempo de bloqueio de tela nas configurações do Android/iOS. |
+| O laser abriu um "touchpad" em vez de seguir o movimento | O celular não tem sensor de orientação ou a permissão foi negada (no iPhone: Ajustes → Safari → Movimento e Orientação, ou recarregue e aceite o aviso). O touchpad funciona normalmente. |
+| O ponto do laser some sozinho | O ponto apaga ~2 s depois que o celular para de enviar posição (tela bloqueada, app em segundo plano). Desligue e ligue o laser de novo. |
+| Toquei na lousa e nada aconteceu | A trava está ligada (aparece "Toque da lousa travado" no canto). Destrave pelo botão **Travar lousa** no celular. |
+
+## Atualizando de uma versão anterior
+
+Se você já usava o SlideRemote antes da trava e do laser:
+
+1. Substitua os arquivos no servidor pelos novos (pode sobrescrever tudo,
+   **menos o seu `config.php`**, que guarda as credenciais).
+2. No phpMyAdmin, selecione o banco e importe **apenas** o
+   `atualizacao_v2.sql` (ele adiciona a coluna `lousa_travada`).
+   Não importe o `schema.sql` de novo.
 
 ## Notas de segurança
 

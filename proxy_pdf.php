@@ -266,7 +266,8 @@ function limparCacheAntigo(): void
         $limite = 72 * 3600;
         if (strpos($nome, 'up_') === 0) {
             $limite = 24 * 3600;
-        } elseif (strpos($nome, '.tmp') !== false || strpos($nome, '.baixando.') !== false) {
+        } elseif (strpos($nome, 'laser_') === 0
+            || strpos($nome, '.tmp') !== false || strpos($nome, '.baixando.') !== false) {
             $limite = 3600;
         }
         if ($idade > $limite) {

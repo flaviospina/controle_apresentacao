@@ -121,6 +121,8 @@ function formatarEstadoSessao(array $sessao): array
         'slide_atual'        => (int) $sessao['slide_atual'],
         'total_slides'       => (int) $sessao['total_slides'],
         'blackout'           => (bool) $sessao['blackout'],
+        'lousa_travada'      => (bool) ($sessao['lousa_travada'] ?? false),
+        'laser_ativo'        => laserAtivo($sessao['codigo']),
         'ativa'              => (bool) $sessao['ativa'],
         'controle_conectado' => (bool) ($sessao['controle_conectado'] ?? false),
         'origem'             => $sessao['origem'],
@@ -135,6 +137,29 @@ function formatarEstadoSessao(array $sessao): array
 function validarCodigoSessao(string $codigo): bool
 {
     return preg_match('/^[0-9]{4}$/', $codigo) === 1;
+}
+
+/**
+ * Caminho do arquivo temporário com a posição da caneta laser da sessão.
+ * O código já foi validado (4 dígitos), então o nome do arquivo é seguro.
+ */
+function arquivoLaser(string $codigo): string
+{
+    return PASTA_CACHE . '/laser_' . $codigo . '.json';
+}
+
+/**
+ * O laser está ativo se a posição foi atualizada há menos de 2 segundos
+ * (o celular reenvia a posição continuamente enquanto o laser está ligado).
+ */
+function laserAtivo(string $codigo): bool
+{
+    $arquivo = arquivoLaser($codigo);
+    if (!is_file($arquivo)) {
+        return false;
+    }
+    clearstatcache(false, $arquivo);
+    return (time() - (int) filemtime($arquivo)) <= 2;
 }
 
 // ---------------------------------------------------------------------------

@@ -329,6 +329,41 @@ kbd {
 #indicador-conexao.conectado    { background: var(--cor-ok); }
 #indicador-conexao.sem-servidor { background: var(--cor-erro); }
 
+/* Aviso de lousa travada (canto superior direito) */
+.chip-trava {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 66;
+  background: rgba(22, 29, 39, 0.9);
+  color: var(--cor-texto-claro);
+  font-size: 0.85rem;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.chip-trava.destaque {
+  background: var(--cor-atencao);
+  transform: scale(1.08);
+}
+
+/* Ponto da caneta laser */
+#laser-ponto {
+  position: absolute;
+  z-index: 45; /* acima da cortina de tela preta, abaixo dos painéis */
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px; /* centraliza no ponto indicado */
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle at 40% 35%, #ff8a80 0%, #ff1744 45%, #b3001b 100%);
+  box-shadow: 0 0 10px 4px rgba(255, 23, 68, 0.65),
+              0 0 26px 10px rgba(255, 23, 68, 0.30);
+  transition: left 0.1s linear, top 0.1s linear;
+}
+
 /* Aviso flutuante com os atalhos de teclado */
 .aviso-flutuante {
   position: absolute;
@@ -501,16 +536,21 @@ kbd {
   background: var(--cor-primaria);
 }
 
-/* --------- Rodapé: tela preta, grade e encerrar --------- */
+/* --------- Rodapé: laser, tela preta, travar, grade e encerrar --------- */
 
 #rodape-controle {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
   gap: 8px;
   padding: 0 14px calc(12px + env(safe-area-inset-bottom, 0px));
 }
 
+.rodape-meio  { grid-column: span 2; }
+.rodape-largo { grid-column: span 3; }
+
+#rodape-controle button em { font-style: normal; }
+
 #rodape-controle button {
-  flex: 1;
   border: 1px solid rgba(255, 255, 255, 0.15);
   background: var(--cor-superficie-escura);
   color: var(--cor-texto-claro);
@@ -535,7 +575,51 @@ kbd {
   color: #fff;
 }
 
+#botao-travar.ativo {
+  background: var(--cor-primaria);
+  border-color: var(--cor-primaria);
+  color: #fff;
+}
+
+#botao-laser.ativo {
+  background: #b3261e;
+  border-color: #b3261e;
+  color: #fff;
+}
+
 #botao-encerrar { color: #f2a5a0; }
+
+/* --------- Touchpad do laser (celular sem sensor de movimento) --------- */
+
+#laser-touch-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 85;
+  background: rgba(13, 17, 23, 0.97);
+  display: flex;
+  flex-direction: column;
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  color: var(--cor-texto-claro);
+}
+
+#laser-touch-overlay p {
+  text-align: center;
+  margin: 4px 0 12px;
+  color: #93a4b8;
+  font-size: 0.95rem;
+}
+
+#laser-touch-area {
+  flex: 1;
+  border: 2px dashed rgba(255, 255, 255, 0.25);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle, rgba(255, 23, 68, 0.25) 0 6px, transparent 7px) center / 100% 100% no-repeat,
+    var(--cor-superficie-escura);
+  touch-action: none;
+}
+
+#laser-touch-overlay .botao { margin-top: 14px; }
 
 /* --------- Grade de miniaturas (ir para slide) --------- */
 
