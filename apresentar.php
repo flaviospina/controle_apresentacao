@@ -7,6 +7,11 @@
  * pelo código de 4 dígitos para controlar a apresentação.
  */
 require __DIR__ . '/config.php';
+
+// URL base absoluta (as redes sociais exigem endereço completo na og:image).
+$urlBase = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http')
+         . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost')
+         . rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -15,6 +20,21 @@ require __DIR__ . '/config.php';
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>SlideRemote — Apresentação</title>
+<meta name="description" content="Apresente na lousa digital e controle os slides pelo celular: avançar, voltar, tela preta, caneta laser e trava de toque — sem hardware apontador.">
+<!-- Compartilhamento em redes sociais / WhatsApp (Open Graph) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SlideRemote">
+<meta property="og:title" content="SlideRemote — controle a apresentação pelo celular">
+<meta property="og:description" content="Apresente na lousa digital e controle os slides pelo celular: avançar, voltar, tela preta, caneta laser e trava de toque — sem hardware apontador.">
+<meta property="og:url" content="<?php echo htmlspecialchars($urlBase . '/apresentar.php'); ?>">
+<meta property="og:image" content="<?php echo htmlspecialchars($urlBase . '/assets/og-imagem.png'); ?>">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="pt_BR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="SlideRemote — controle a apresentação pelo celular">
+<meta name="twitter:description" content="Apresente na lousa digital e controle os slides pelo celular, sem hardware apontador.">
+<meta name="twitter:image" content="<?php echo htmlspecialchars($urlBase . '/assets/og-imagem.png'); ?>">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%231f4e8c'/%3E%3Ctext x='50' y='70' font-size='58' text-anchor='middle' fill='white' font-family='Arial'%3ES%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="assets/estilo.css">
 </head>
@@ -43,6 +63,16 @@ require __DIR__ . '/config.php';
     </p>
 
     <p id="erro-inicial" class="mensagem-erro" hidden></p>
+
+    <!-- Logos institucionais: troque os três arquivos em assets/logos/
+         (ou o src abaixo) pelas logos definitivas. -->
+    <div class="faixa-logos">
+      <img src="assets/logos/logo1.png" alt="Logo 1">
+      <img src="assets/logos/logo2.png" alt="Logo 2">
+      <img src="assets/logos/logo3.png" alt="Logo 3">
+    </div>
+
+    <p class="dica"><a class="link-tutorial" href="tutorial.php">Como usar — tutorial ilustrado</a></p>
   </div>
 </section>
 

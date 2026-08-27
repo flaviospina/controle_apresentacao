@@ -20,8 +20,14 @@
   };
 
   var INTERVALO_POLLING_MS = 500;
-  var INTERVALO_LASER_MS   = 120;  // consulta rápida da lousa com o laser ligado
-  var INTERVALO_ENVIO_LASER_MS = 80; // limite de envio de posição pelo celular
+  var INTERVALO_LASER_MS   = 100;  // consulta rápida da lousa com o laser ligado
+  var INTERVALO_ENVIO_LASER_MS = 66; // limite de envio de posição pelo celular
+
+  // Sensor do laser: quantos graus de giro varrem a tela inteira e o peso
+  // do filtro de suavização (menor = mais suave, porém mais "pesado").
+  var LASER_GRAUS_LARGURA = 44;
+  var LASER_GRAUS_ALTURA  = 34;
+  var LASER_SUAVIZACAO    = 0.30;
 
   // ------------------------------------------------------------------
   // Helpers comuns
@@ -370,23 +376,47 @@
     // ---------------- Caneta laser (ponto vermelho na lousa) ----------------
 
     // Enquanto o laser está ligado no celular, a lousa consulta a posição
-    // num ritmo bem mais rápido que o polling normal. O loop se desliga
-    // sozinho quando o sinal some (o estado normal religa se voltar).
+    // num ritmo bem mais rápido que o polling normal, e o ponto DESLIZA
+    // até cada nova posição (interpolação por requestAnimationFrame) em
+    // vez de pular — o movimento fica contínuo mesmo com a rede em
+    // rajadas. O loop se desliga sozinho quando o sinal some.
+    var laserAlvo  = { x: 0.5, y: 0.5 }; // última posição recebida
+    var laserPos   = { x: 0.5, y: 0.5 }; // posição desenhada (vai ao alvo)
+    var laserQuadro = null;              // id do requestAnimationFrame
+
     function iniciarLaser() {
       sessao.laserSemSinal = 0;
+      laserPos.x = laserAlvo.x;
+      laserPos.y = laserAlvo.y;
       laserPonto.hidden = false;
+      animarLaser();
       sessao.timerLaser = setInterval(function () {
         getJson(API.laser + '?c=' + encodeURIComponent(sessao.codigo))
           .then(function (resposta) {
             if (resposta.ativo) {
               sessao.laserSemSinal = 0;
-              posicionarLaser(resposta.x, resposta.y);
+              laserAlvo.x = resposta.x;
+              laserAlvo.y = resposta.y;
             } else {
               perderSinalLaser();
             }
           })
           .catch(function () { perderSinalLaser(); });
       }, INTERVALO_LASER_MS);
+    }
+
+    function animarLaser() {
+      // Aproxima 22% da distância a cada quadro (~60 fps): rápido o
+      // suficiente para acompanhar, suave o suficiente para não tremer.
+      laserPos.x += (laserAlvo.x - laserPos.x) * 0.22;
+      laserPos.y += (laserAlvo.y - laserPos.y) * 0.22;
+      var canvas = sessao.canvases[sessao.slideAtual - 1];
+      if (canvas) {
+        var area = canvas.getBoundingClientRect();
+        laserPonto.style.left = (area.left + laserPos.x * area.width).toFixed(1)  + 'px';
+        laserPonto.style.top  = (area.top  + laserPos.y * area.height).toFixed(1) + 'px';
+      }
+      laserQuadro = window.requestAnimationFrame(animarLaser);
     }
 
     function perderSinalLaser() {
@@ -399,15 +429,11 @@
         clearInterval(sessao.timerLaser);
         sessao.timerLaser = null;
       }
+      if (laserQuadro !== null) {
+        window.cancelAnimationFrame(laserQuadro);
+        laserQuadro = null;
+      }
       laserPonto.hidden = true;
-    }
-
-    function posicionarLaser(x, y) {
-      var canvas = sessao.canvases[sessao.slideAtual - 1];
-      if (!canvas) { return; }
-      var area = canvas.getBoundingClientRect();
-      laserPonto.style.left = Math.round(area.left + x * area.width)  + 'px';
-      laserPonto.style.top  = Math.round(area.top  + y * area.height) + 'px';
     }
 
     function encerrarApresentacao() {
@@ -794,6 +820,10 @@
       ligado: false,
       centroAlpha: null,
       centroBeta: null,
+      ultimoAlpha: null,   // última leitura crua (para o "Centralizar")
+      ultimoBeta: null,
+      filtroX: null,       // posição suavizada (filtro exponencial)
+      filtroY: null,
       x: 0.5,
       y: 0.5,
       ultimoEnvio: 0,
@@ -809,12 +839,28 @@
 
     $('botao-fechar-laser').addEventListener('click', desligarLaser);
 
+    // "Centralizar": a orientação atual do celular vira o novo centro e o
+    // ponto volta ao meio da lousa — sem precisar desligar e religar.
+    $('botao-centralizar').addEventListener('click', function () {
+      if (!laser.ligado) { return; }
+      laser.centroAlpha = laser.ultimoAlpha;
+      laser.centroBeta  = laser.ultimoBeta;
+      laser.filtroX = 0.5;
+      laser.filtroY = 0.5;
+      laser.x = 0.5;
+      laser.y = 0.5;
+      vibrar();
+      enviarLaser(true);
+    });
+
     function ligarLaser() {
       laser.ligado = true;
       laser.x = 0.5;
       laser.y = 0.5;
       laser.centroAlpha = null;   // recalibra o centro a cada ativação
       laser.centroBeta = null;
+      laser.filtroX = null;
+      laser.filtroY = null;
       laser.recebeuSensor = false;
       laser.usaToque = false;
 
@@ -824,10 +870,11 @@
       vibrar();
 
       enviarLaser(true);
-      laser.timerHeartbeat = setInterval(function () { enviarLaser(true); }, 400);
+      laser.timerHeartbeat = setInterval(function () { enviarLaser(true); }, 300);
 
       var comecarSensor = function () {
         window.addEventListener('deviceorientation', aoMoverSensor);
+        $('barra-laser').hidden = false;
         // Sem nenhuma leitura do sensor em 1,2 s → cai para o touchpad.
         laser.timerEsperaSensor = setTimeout(function () {
           if (!laser.recebeuSensor && laser.ligado) { ativarModoToque(); }
@@ -856,6 +903,7 @@
       if (laser.timerHeartbeat)    { clearInterval(laser.timerHeartbeat); laser.timerHeartbeat = null; }
       if (laser.timerEsperaSensor) { clearTimeout(laser.timerEsperaSensor); }
       laserOverlay.hidden = true;
+      $('barra-laser').hidden = true;
       botaoLaser.classList.remove('ativo');
       botaoLaser.setAttribute('aria-pressed', 'false');
       rotuloLaser.textContent = 'Laser';
@@ -867,6 +915,8 @@
       if (!laser.ligado || laser.usaToque) { return; }
       if (evento.alpha === null || evento.beta === null) { return; }
       laser.recebeuSensor = true;
+      laser.ultimoAlpha = evento.alpha;
+      laser.ultimoBeta  = evento.beta;
 
       // A primeira leitura vira o "centro": segurar o celular apontando
       // para a lousa e ligar o laser deixa o ponto no meio da tela.
@@ -876,18 +926,32 @@
       }
 
       // alpha (giro esquerda/direita) controla X; beta (inclinar para
-      // cima/baixo) controla Y. ±18° varrem a lousa inteira.
+      // cima/baixo) controla Y.
       var dAlpha = evento.alpha - laser.centroAlpha;
       if (dAlpha > 180) { dAlpha -= 360; } else if (dAlpha < -180) { dAlpha += 360; }
       var dBeta = evento.beta - laser.centroBeta;
 
-      laser.x = limitar01(0.5 - dAlpha / 36);
-      laser.y = limitar01(0.5 - dBeta / 36);
+      var alvoX = limitar01(0.5 - dAlpha / LASER_GRAUS_LARGURA);
+      var alvoY = limitar01(0.5 - dBeta  / LASER_GRAUS_ALTURA);
+
+      // Filtro exponencial: amortece o tremor natural da mão sem deixar
+      // o ponto "atrasado" demais.
+      if (laser.filtroX === null) {
+        laser.filtroX = alvoX;
+        laser.filtroY = alvoY;
+      } else {
+        laser.filtroX += (alvoX - laser.filtroX) * LASER_SUAVIZACAO;
+        laser.filtroY += (alvoY - laser.filtroY) * LASER_SUAVIZACAO;
+      }
+
+      laser.x = laser.filtroX;
+      laser.y = laser.filtroY;
       enviarLaser(false);
     }
 
     function ativarModoToque() {
       laser.usaToque = true;
+      $('barra-laser').hidden = true;
       laserOverlay.hidden = false;
     }
 

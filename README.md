@@ -21,6 +21,7 @@ e o cronômetro.
 slideremote/
 ├── apresentar.php     ← tela da lousa digital
 ├── controle.php       ← tela do celular (controle remoto)
+├── tutorial.php       ← tutorial ilustrado de uso (pode ser impresso)
 ├── proxy_pdf.php      ← baixa a apresentação do Google e serve o PDF
 ├── config.php         ← credenciais do banco (ÚNICO arquivo a editar)
 ├── schema.sql         ← estrutura do banco (importar no phpMyAdmin)
@@ -33,8 +34,28 @@ slideremote/
 │   └── laser.php      ← canal rápido da posição da caneta laser
 ├── assets/
 │   ├── estilo.css
-│   └── app.js
+│   ├── app.js
+│   ├── og-imagem.png  ← imagem de compartilhamento (WhatsApp/redes)
+│   ├── logos/         ← as 3 logos institucionais (troque os arquivos)
+│   └── tutorial/      ← imagens usadas pelo tutorial.php
 └── cache/             ← PDFs baixados/enviados (bloqueada ao público)
+```
+
+## Personalização e divulgação
+
+- **Logos**: as telas iniciais (lousa e celular) e o tutorial exibem três
+  logos lado a lado. Substitua os arquivos `assets/logos/logo1.png`,
+  `logo2.png` e `logo3.png` pelas logos definitivas (fundo transparente
+  fica melhor; elas são exibidas com 48 px de altura). Se preferir usar
+  URLs, troque o `src` das tags `<img>` marcadas com o comentário
+  "Logos institucionais" em `apresentar.php` e `controle.php`.
+- **Compartilhamento**: ao enviar o link do sistema por WhatsApp ou redes
+  sociais, aparece um cartão com título, descrição e a imagem
+  `assets/og-imagem.png` (meta tags Open Graph já configuradas com a URL
+  do seu domínio, detectada automaticamente).
+- **Tutorial**: `tutorial.php` traz o passo a passo ilustrado com as telas
+  reais — há um link na tela inicial da lousa, e ele pode ser impresso
+  (Ctrl+P) para ficar junto da lousa digital.
 ```
 
 ## Instalação pelo cPanel (HostGator)

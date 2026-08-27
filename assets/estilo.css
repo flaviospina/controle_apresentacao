@@ -179,6 +179,31 @@ body {
 
 .dica-clara { color: #93a4b8; }
 
+/* Faixa com as três logos institucionais, lado a lado */
+.faixa-logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--cor-borda);
+}
+
+.faixa-logos img {
+  height: 48px;
+  max-width: 30%;
+  object-fit: contain;
+}
+
+.link-tutorial {
+  color: var(--cor-primaria);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.link-tutorial:hover { text-decoration: underline; }
+
 .mensagem-erro {
   margin: 18px 0 0;
   padding: 12px 14px;
@@ -361,7 +386,34 @@ kbd {
   background: radial-gradient(circle at 40% 35%, #ff8a80 0%, #ff1744 45%, #b3001b 100%);
   box-shadow: 0 0 10px 4px rgba(255, 23, 68, 0.65),
               0 0 26px 10px rgba(255, 23, 68, 0.30);
-  transition: left 0.1s linear, top 0.1s linear;
+  /* sem transition: a posição é interpolada por requestAnimationFrame */
+}
+
+/* Barra "Centralizar" (aparece com o laser ligado no modo sensor) */
+#barra-laser {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 14px 10px;
+  padding: 8px 8px 8px 14px;
+  border-radius: 12px;
+  background: rgba(179, 38, 30, 0.16);
+  border: 1px solid rgba(255, 23, 68, 0.35);
+  color: #f5b8b4;
+  font-size: 0.85rem;
+}
+
+#botao-centralizar {
+  border: none;
+  border-radius: 8px;
+  background: #b3261e;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 10px 16px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Aviso flutuante com os atalhos de teclado */
@@ -693,6 +745,121 @@ kbd {
 .pagina-controle .sobreposicao {
   position: fixed;
   z-index: 90;
+}
+
+/* ==========================================================================
+   TUTORIAL — tutorial.php
+   ========================================================================== */
+
+.pagina-tutorial {
+  background: var(--cor-fundo-claro);
+  color: var(--cor-texto);
+}
+
+.tutorial-topo {
+  text-align: center;
+  padding: 40px 18px 8px;
+}
+
+.tutorial-conteudo {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 10px 18px 40px;
+}
+
+.passo {
+  background: var(--cor-superficie);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  padding: 26px 30px;
+  margin-top: 22px;
+  line-height: 1.6;
+}
+
+.passo h2 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 14px;
+  font-size: 1.25rem;
+  color: var(--cor-primaria-forte);
+}
+
+.passo .num {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--cor-primaria);
+  color: #fff;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.passo figure {
+  margin: 14px 0;
+  text-align: center;
+}
+
+.passo img {
+  max-width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--cor-borda);
+  box-shadow: 0 6px 18px rgba(13, 24, 38, 0.10);
+}
+
+.passo figcaption {
+  font-size: 0.83rem;
+  color: var(--cor-texto-suave);
+  margin-top: 8px;
+}
+
+.par-imagens {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.par-imagens .larga    { flex: 2 1 380px; min-width: 280px; }
+.par-imagens .estreita { flex: 1 1 200px; min-width: 180px; max-width: 260px; margin-left: auto; margin-right: auto; }
+.par-imagens .texto-ao-lado { flex: 2 1 320px; }
+
+.passo .atencao {
+  background: #fff6e5;
+  border: 1px solid #f0d9a8;
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #7a5200;
+}
+
+.passo code {
+  background: #eef2f7;
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+.passo kbd {
+  background: #eef2f7;
+  border: 1px solid var(--cor-borda);
+  color: var(--cor-texto);
+}
+
+.tutorial-rodape {
+  text-align: center;
+  padding: 8px 18px 46px;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.tutorial-rodape .faixa-logos { border-top: none; }
+
+@media print {
+  .tutorial-topo nav { display: none; }
+  .passo { box-shadow: none; border: 1px solid var(--cor-borda); page-break-inside: avoid; }
+  body { background: #fff; }
 }
 
 /* --------- Celular deitado (pouca altura): botões lado a lado --------- */
