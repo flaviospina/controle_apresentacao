@@ -43,12 +43,14 @@ slideremote/
 
 ## Personalização e divulgação
 
-- **Logos**: as telas iniciais (lousa e celular) e o tutorial exibem três
-  logos lado a lado. Substitua os arquivos `assets/logos/logo1.png`,
-  `logo2.png` e `logo3.png` pelas logos definitivas (fundo transparente
-  fica melhor; elas são exibidas com 48 px de altura). Se preferir usar
-  URLs, troque o `src` das tags `<img>` marcadas com o comentário
-  "Logos institucionais" em `apresentar.php` e `controle.php`.
+- **Logos**: as telas iniciais (lousa e celular) e o tutorial exibem as
+  logos institucionais lado a lado — Prefeitura/SEEDUC de São Caetano do
+  Sul (`assets/logos/logo1.png`), CECAPE (`logo2.png`) e AutoriaSCS
+  (`logo3.png`), já tratadas com fundo transparente para o tema escuro.
+  Para trocar alguma, basta substituir o arquivo correspondente.
+- **Identidade visual**: o sistema segue o padrão CECAPE/AutoriaSCS —
+  tema escuro azul-marinho com acentos ciano e laranja e fonte Inter —
+  definido inteiramente em `assets/estilo.css`.
 - **Compartilhamento**: ao enviar o link do sistema por WhatsApp ou redes
   sociais, aparece um cartão com título, descrição e a imagem
   `assets/og-imagem.png` (meta tags Open Graph já configuradas com a URL

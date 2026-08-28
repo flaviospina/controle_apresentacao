@@ -19,7 +19,7 @@ $urlBase = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https'
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#0d1117">
+<meta name="theme-color" content="#0b1628">
 <title>SlideRemote — Controle</title>
 <meta name="description" content="Controle remoto da apresentação: avance e volte slides, tela preta, caneta laser e trava da lousa, direto do celular.">
 <!-- Compartilhamento em redes sociais / WhatsApp (Open Graph) -->
@@ -36,7 +36,10 @@ $urlBase = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https'
 <meta name="twitter:title" content="SlideRemote — controle remoto da apresentação">
 <meta name="twitter:description" content="Controle a apresentação da lousa pelo celular, sem hardware apontador.">
 <meta name="twitter:image" content="<?php echo htmlspecialchars($urlBase . '/assets/og-imagem.png'); ?>">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%231f4e8c'/%3E%3Ctext x='50' y='70' font-size='58' text-anchor='middle' fill='white' font-family='Arial'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230b1628'/%3E%3Ctext x='50' y='70' font-size='58' text-anchor='middle' fill='%2322d3ee' font-family='Arial'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/estilo.css">
 </head>
 <body class="pagina-controle" data-pagina="controle">

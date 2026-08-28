@@ -1,29 +1,60 @@
 /* ==========================================================================
    SlideRemote — assets/estilo.css
-   Visual sóbrio, adequado a uso institucional em escola.
+   Visual: padrão CECAPE Word Cloud / AutoriaSCS (tema escuro azul-marinho,
+   acentos ciano e laranja, fonte Inter).
    ========================================================================== */
 
 :root {
-  --cor-fundo-claro:   #f3f5f8;
-  --cor-fundo-escuro:  #0d1117;
-  --cor-superficie:    #ffffff;
-  --cor-superficie-escura: #161d27;
-  --cor-primaria:      #1f4e8c;
-  --cor-primaria-forte:#173a68;
-  --cor-primaria-clara:#3b6cb0;
-  --cor-texto:         #1c2733;
-  --cor-texto-suave:   #5a6b7d;
-  --cor-texto-claro:   #e8edf3;
-  --cor-borda:         #d4dbe4;
-  --cor-erro:          #b3261e;
-  --cor-erro-fundo:    #fdeceb;
-  --cor-ok:            #1e8e3e;
-  --cor-atencao:       #b26a00;
-  --sombra: 0 10px 30px rgba(13, 24, 38, 0.12);
-  --raio: 12px;
+  /* Fundos */
+  --bg:            #0b1628;
+  --bg-card:       #0f2044;
+  --bg-card2:      #112240;
+  --bg-input:      #0b1e3d;
+  --bg-hover:      #142952;
+
+  /* Bordas */
+  --borda:         rgba(30, 80, 160, 0.35);
+  --borda-clara:   rgba(30, 80, 160, 0.55);
+
+  /* Texto */
+  --texto:         #ffffff;
+  --texto-suave:   #8baac8;
+  --texto-apagado: #3d6080;
+
+  /* Acentos */
+  --ciano:   #22d3ee;
+  --laranja: #f97316;
+  --verde:   #10b981;
+  --vermelho:#ef4444;
+  --amarelo: #eab308;
+  --azul:    #3b82f6;
+
+  /* Gradientes */
+  --grad-botao:   linear-gradient(135deg, #1d4ed8 0%, #06b6d4 100%);
+  --grad-laranja: linear-gradient(135deg, #c2410c 0%, #f97316 100%);
+  --grad-fundo:   linear-gradient(160deg, #0b1628 0%, #0a1f3a 50%, #091628 100%);
+
+  /* Sombras */
+  --sombra-lg:    0 10px 48px rgba(0, 0, 0, 0.65);
+  --sombra-card:  0 2px 12px rgba(0, 0, 0, 0.4);
+  --brilho-azul:  0 0 28px rgba(34, 211, 238, 0.18);
+  --brilho-laranja: 0 0 28px rgba(249, 115, 22, 0.28);
+
+  /* Medidas */
+  --raio:    12px;
+  --raio-sm: 8px;
+  --fonte:   'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* Nomes antigos mantidos para compatibilidade */
+  --cor-primaria:       #1d4ed8;
+  --cor-primaria-forte: #1e40af;
+  --cor-primaria-clara: var(--ciano);
+  --cor-ok:             var(--verde);
+  --cor-erro:           var(--vermelho);
+  --cor-atencao:        var(--laranja);
 }
 
-* { box-sizing: border-box; }
+*, *::before, *::after { box-sizing: border-box; }
 
 html, body {
   margin: 0;
@@ -32,11 +63,16 @@ html, body {
 }
 
 body {
-  font-family: -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif;
-  color: var(--cor-texto);
-  background: var(--cor-fundo-claro);
+  font-family: var(--fonte);
+  color: var(--texto);
+  background: var(--bg);
+  background-image: var(--grad-fundo);
   -webkit-font-smoothing: antialiased;
 }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: #1e4080; border-radius: 3px; }
 
 /* ------------------------------- Utilitários ---------------------------- */
 
@@ -58,42 +94,43 @@ body {
   justify-content: center;
 }
 
-.tela-clara  { background: var(--cor-fundo-claro); padding: 18px; }
-.tela-escura { background: var(--cor-fundo-escuro); }
+.tela-clara  { background: transparent; padding: 18px; }
+.tela-escura { background: var(--bg); }
 
 /* -------------------------------- Cartões ------------------------------- */
 
 .cartao {
-  background: var(--cor-superficie);
+  background: var(--bg-card);
+  border: 1px solid var(--borda-clara);
   border-radius: var(--raio);
-  box-shadow: var(--sombra);
-  padding: 32px;
+  box-shadow: var(--sombra-lg);
+  padding: 34px 36px;
   width: 100%;
-  max-width: 460px;
+  max-width: 480px;
   text-align: center;
 }
 
 .cartao-escuro {
-  background: var(--cor-superficie-escura);
-  color: var(--cor-texto-claro);
+  background: var(--bg-card);
+  border: 1px solid var(--borda);
+  color: var(--texto);
 }
 
 .logo {
   margin: 0 0 4px;
   font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-  color: var(--cor-primaria);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ciano);
 }
 
-.logo span { color: var(--cor-texto); }
-
-.cartao-escuro .logo span { color: var(--cor-texto-claro); }
+.logo span { color: var(--texto); }
 
 .subtitulo {
-  margin: 0 0 24px;
-  color: var(--cor-texto-suave);
-  font-size: 0.95rem;
+  margin: 0 0 26px;
+  color: var(--texto-suave);
+  font-size: 0.9rem;
+  line-height: 1.6;
 }
 
 /* ------------------------------ Formulários ------------------------------ */
@@ -101,63 +138,73 @@ body {
 .rotulo {
   display: block;
   text-align: left;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--cor-texto-suave);
-  margin: 0 0 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+  margin: 0 0 7px;
 }
 
 .campo-texto {
   width: 100%;
-  font-size: 1rem;
+  font-size: 0.95rem;
   padding: 12px 14px;
-  border: 1px solid var(--cor-borda);
-  border-radius: 8px;
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-sm);
   outline: none;
-  background: #fbfcfe;
-  color: var(--cor-texto);
+  background: var(--bg-input);
+  color: var(--texto);
+  font-family: var(--fonte);
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
+.campo-texto::placeholder { color: var(--texto-apagado); }
+
 .campo-texto:focus {
-  border-color: var(--cor-primaria-clara);
-  box-shadow: 0 0 0 3px rgba(59, 108, 176, 0.18);
+  border-color: var(--ciano);
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.12);
 }
 
 .botao {
   display: inline-block;
   width: 100%;
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: var(--fonte);
   padding: 13px 18px;
   margin-top: 14px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--raio-sm);
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: all 0.18s;
   -webkit-tap-highlight-color: transparent;
 }
 
 .botao-primario {
-  background: var(--cor-primaria);
+  background: var(--grad-botao);
   color: #fff;
 }
 
-.botao-primario:hover:not(:disabled)  { background: var(--cor-primaria-forte); }
-.botao-primario:disabled              { opacity: 0.65; cursor: default; }
+.botao-primario:hover:not(:disabled) { transform: translateY(-2px); box-shadow: var(--brilho-azul); }
+.botao-primario:disabled             { opacity: 0.6; cursor: default; }
 
 .botao-secundario {
-  background: #e8eef6;
-  color: var(--cor-primaria);
+  background: transparent;
+  color: var(--ciano);
+  border: 1px solid rgba(34, 211, 238, 0.4);
 }
 
-.botao-secundario:hover { background: #dce6f2; }
+.botao-secundario:hover { background: rgba(34, 211, 238, 0.1); border-color: var(--ciano); }
 
 .separador {
   display: flex;
   align-items: center;
   margin: 22px 0 8px;
-  color: var(--cor-texto-suave);
-  font-size: 0.85rem;
+  color: var(--texto-apagado);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .separador::before,
@@ -165,64 +212,66 @@ body {
   content: '';
   flex: 1;
   height: 1px;
-  background: var(--cor-borda);
+  background: var(--borda);
 }
 
 .separador span { padding: 0 12px; }
 
 .dica {
-  font-size: 0.82rem;
-  color: var(--cor-texto-suave);
-  margin: 10px 0 0;
-  line-height: 1.45;
+  font-size: 0.8rem;
+  color: var(--texto-suave);
+  margin: 12px 0 0;
+  line-height: 1.6;
 }
 
-.dica-clara { color: #93a4b8; }
+.dica-clara { color: var(--texto-suave); }
+
+.mensagem-erro {
+  margin: 18px 0 0;
+  padding: 12px 14px;
+  border-radius: var(--raio-sm);
+  background: rgba(239, 68, 68, 0.13);
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  color: #f87171;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  text-align: left;
+}
+
+kbd {
+  font-family: inherit;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 0.85em;
+}
 
 /* Faixa com as três logos institucionais, lado a lado */
 .faixa-logos {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 22px;
-  margin-top: 24px;
-  padding-top: 18px;
-  border-top: 1px solid var(--cor-borda);
+  gap: 18px;
+  margin-top: 26px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .faixa-logos img {
-  height: 48px;
+  height: 44px;
   max-width: 30%;
   object-fit: contain;
+  filter: brightness(1.05);
 }
 
 .link-tutorial {
-  color: var(--cor-primaria);
+  color: var(--ciano);
   font-weight: 600;
   text-decoration: none;
 }
 
 .link-tutorial:hover { text-decoration: underline; }
-
-.mensagem-erro {
-  margin: 18px 0 0;
-  padding: 12px 14px;
-  border-radius: 8px;
-  background: var(--cor-erro-fundo);
-  color: var(--cor-erro);
-  font-size: 0.9rem;
-  line-height: 1.45;
-  text-align: left;
-}
-
-kbd {
-  font-family: inherit;
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 4px;
-  padding: 1px 6px;
-  font-size: 0.85em;
-}
 
 /* ==========================================================================
    LOUSA — apresentar.php
@@ -233,6 +282,7 @@ kbd {
   inset: 0;
   overflow: hidden;
   cursor: pointer;
+  background: #05080f;
 }
 
 #palco {
@@ -267,14 +317,14 @@ kbd {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(13, 17, 23, 0.92);
+  background: rgba(5, 8, 15, 0.92);
 }
 
 .barra-progresso {
   margin-top: 18px;
   height: 8px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.1);
   overflow: hidden;
 }
 
@@ -282,7 +332,7 @@ kbd {
   height: 100%;
   width: 0%;
   border-radius: 999px;
-  background: var(--cor-primaria-clara);
+  background: var(--grad-botao);
   transition: width 0.25s ease;
 }
 
@@ -293,50 +343,57 @@ kbd {
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 60;
-  background: var(--cor-superficie);
+  background: var(--bg-card);
+  border: 1px solid var(--borda-clara);
   border-radius: var(--raio);
-  box-shadow: var(--sombra);
-  padding: 26px 34px;
+  box-shadow: var(--sombra-lg);
+  padding: 28px 36px;
   text-align: center;
-  max-width: 420px;
+  max-width: 430px;
 }
 
 #painel-pareamento h2 {
   margin: 0 0 16px;
-  font-size: 1.25rem;
-  color: var(--cor-texto);
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ciano);
 }
 
 #qrcode {
   display: flex;
   justify-content: center;
-  margin-bottom: 14px;
+  margin: 0 auto 14px;
+  background: #fff;         /* o QR precisa de fundo claro para a câmera ler */
+  border-radius: var(--raio-sm);
+  padding: 12px;
+  width: -moz-fit-content;
+  width: fit-content;
 }
 
-#qrcode img, #qrcode canvas { border-radius: 6px; }
+#qrcode img, #qrcode canvas { display: block; }
 
 .pareamento-instrucao {
-  font-size: 0.9rem;
-  color: var(--cor-texto-suave);
-  line-height: 1.5;
+  font-size: 0.85rem;
+  color: var(--texto-suave);
+  line-height: 1.6;
   margin: 0;
 }
 
+.pareamento-instrucao strong { color: var(--texto); }
+
 #codigo-sessao {
   font-size: 3.2rem;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.35em;
   text-indent: 0.35em; /* compensa o espaçamento do último dígito */
-  color: var(--cor-primaria);
+  color: var(--ciano);
   margin: 10px 0 4px;
+  text-shadow: 0 0 24px rgba(34, 211, 238, 0.35);
 }
 
-#painel-pareamento .dica { color: var(--cor-texto-suave); }
-#painel-pareamento kbd {
-  background: #eef2f7;
-  border-color: var(--cor-borda);
-  color: var(--cor-texto);
-}
+#painel-pareamento .dica { color: var(--texto-suave); }
 
 /* Indicador de conexão do celular */
 #indicador-conexao {
@@ -347,12 +404,12 @@ kbd {
   height: 14px;
   border-radius: 50%;
   z-index: 70;
-  border: 2px solid rgba(255, 255, 255, 0.35);
+  border: 2px solid rgba(255, 255, 255, 0.25);
 }
 
-#indicador-conexao.aguardando   { background: #6b7686; }
-#indicador-conexao.conectado    { background: var(--cor-ok); }
-#indicador-conexao.sem-servidor { background: var(--cor-erro); }
+#indicador-conexao.aguardando   { background: var(--texto-apagado); }
+#indicador-conexao.conectado    { background: var(--verde); box-shadow: 0 0 10px rgba(16, 185, 129, 0.6); }
+#indicador-conexao.sem-servidor { background: var(--vermelho); box-shadow: 0 0 10px rgba(239, 68, 68, 0.6); }
 
 /* Aviso de lousa travada (canto superior direito) */
 .chip-trava {
@@ -360,18 +417,22 @@ kbd {
   top: 14px;
   right: 14px;
   z-index: 66;
-  background: rgba(22, 29, 39, 0.9);
-  color: var(--cor-texto-claro);
-  font-size: 0.85rem;
+  background: var(--bg-card2);
+  color: var(--texto-suave);
+  font-size: 0.8rem;
+  font-weight: 600;
   padding: 8px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  transition: transform 0.15s ease, background-color 0.15s ease;
+  border: 1px solid var(--borda-clara);
+  transition: transform 0.15s ease, background-color 0.15s ease, color 0.15s ease;
 }
 
 .chip-trava.destaque {
-  background: var(--cor-atencao);
+  background: var(--grad-laranja);
+  border-color: var(--laranja);
+  color: #fff;
   transform: scale(1.08);
+  box-shadow: var(--brilho-laranja);
 }
 
 /* Ponto da caneta laser */
@@ -389,33 +450,6 @@ kbd {
   /* sem transition: a posição é interpolada por requestAnimationFrame */
 }
 
-/* Barra "Centralizar" (aparece com o laser ligado no modo sensor) */
-#barra-laser {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin: 0 14px 10px;
-  padding: 8px 8px 8px 14px;
-  border-radius: 12px;
-  background: rgba(179, 38, 30, 0.16);
-  border: 1px solid rgba(255, 23, 68, 0.35);
-  color: #f5b8b4;
-  font-size: 0.85rem;
-}
-
-#botao-centralizar {
-  border: none;
-  border-radius: 8px;
-  background: #b3261e;
-  color: #fff;
-  font-weight: 600;
-  font-size: 0.9rem;
-  padding: 10px 16px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-
 /* Aviso flutuante com os atalhos de teclado */
 .aviso-flutuante {
   position: absolute;
@@ -423,9 +457,10 @@ kbd {
   bottom: 22px;
   transform: translateX(-50%);
   z-index: 65;
-  background: rgba(22, 29, 39, 0.92);
-  color: var(--cor-texto-claro);
-  font-size: 0.85rem;
+  background: var(--bg-card2);
+  border: 1px solid var(--borda);
+  color: var(--texto-suave);
+  font-size: 0.8rem;
   padding: 10px 18px;
   border-radius: 999px;
   white-space: nowrap;
@@ -436,7 +471,6 @@ kbd {
    ========================================================================== */
 
 .pagina-controle {
-  background: var(--cor-fundo-escuro);
   overflow: hidden;
   /* Evita gestos acidentais de zoom/scroll durante a apresentação */
   touch-action: manipulation;
@@ -446,20 +480,24 @@ kbd {
 .campo-codigo {
   width: 100%;
   font-size: 2.4rem;
+  font-family: var(--fonte);
   text-align: center;
   letter-spacing: 0.4em;
   text-indent: 0.4em;
   padding: 10px 0 12px;
-  border: 1px solid var(--cor-borda);
+  border: 1px solid var(--borda);
   border-radius: 10px;
-  background: #fbfcfe;
-  color: var(--cor-texto);
+  background: var(--bg-input);
+  color: var(--texto);
   outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
+.campo-codigo::placeholder { color: var(--texto-apagado); }
+
 .campo-codigo:focus {
-  border-color: var(--cor-primaria-clara);
-  box-shadow: 0 0 0 3px rgba(59, 108, 176, 0.18);
+  border-color: var(--ciano);
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.12);
 }
 
 #tela-controle {
@@ -467,7 +505,9 @@ kbd {
   inset: 0;
   display: flex;
   flex-direction: column;
-  color: var(--cor-texto-claro);
+  color: var(--texto);
+  background: var(--bg);
+  background-image: var(--grad-fundo);
   -webkit-user-select: none;
   user-select: none;
 }
@@ -479,14 +519,16 @@ kbd {
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
-  background: var(--cor-superficie-escura);
-  font-size: 0.95rem;
+  background: var(--bg);
+  border-bottom: 1px solid var(--borda);
+  font-size: 0.9rem;
 }
 
 .titulo-app {
-  color: #93a4b8;
-  font-weight: 600;
-  font-size: 0.85rem;
+  color: var(--texto-suave);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
 }
 
 #ponto-conexao {
@@ -496,26 +538,31 @@ kbd {
   flex-shrink: 0;
 }
 
-#ponto-conexao.ok    { background: var(--cor-ok); }
-#ponto-conexao.falha { background: var(--cor-erro); }
+#ponto-conexao.ok    { background: var(--verde); box-shadow: 0 0 8px rgba(16, 185, 129, 0.7); }
+#ponto-conexao.falha { background: var(--vermelho); box-shadow: 0 0 8px rgba(239, 68, 68, 0.7); }
 
 #contador {
   margin-left: auto;
   font-variant-numeric: tabular-nums;
-  font-weight: 700;
-  font-size: 1.05rem;
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--ciano);
 }
 
 #cronometro {
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid var(--borda-clara);
   background: transparent;
-  color: var(--cor-texto-claro);
-  border-radius: 8px;
+  color: var(--texto);
+  font-family: var(--fonte);
+  border-radius: var(--raio-sm);
   padding: 4px 10px;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-variant-numeric: tabular-nums;
   cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
 }
+
+#cronometro:hover { border-color: var(--ciano); color: var(--ciano); }
 
 /* --------- Miniaturas do slide atual e do próximo --------- */
 
@@ -536,16 +583,17 @@ kbd {
   max-height: 21vh;
   object-fit: contain;
   border-radius: 6px;
-  background: #000;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #05080f;
+  border: 1px solid var(--borda);
 }
 
 #minis figcaption {
-  font-size: 0.72rem;
-  color: #93a4b8;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--texto-apagado);
   margin-top: 3px;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
 }
 
 /* --------- Áreas grandes de toque: Anterior / Próximo --------- */
@@ -563,8 +611,10 @@ kbd {
   border: none;
   border-radius: 16px;
   color: #fff;
-  font-size: 1.4rem;
-  font-weight: 700;
+  font-family: var(--fonte);
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -576,17 +626,51 @@ kbd {
 
 .botao-toque .seta { font-size: 2rem; line-height: 1; }
 
-.botao-toque:active { filter: brightness(1.25); }
+.botao-toque:active { filter: brightness(1.3); }
 
 #botao-anterior {
   flex: 2;
-  background: #273449;
+  background: var(--bg-card);
+  border: 1px solid var(--borda-clara);
+  color: var(--texto-suave);
 }
 
 #botao-proximo {
   flex: 3;
-  background: var(--cor-primaria);
+  background: var(--grad-botao);
+  box-shadow: var(--sombra-card);
 }
+
+/* --------- Barra "Centralizar" (laser ligado no modo sensor) --------- */
+
+#barra-laser {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 14px 10px;
+  padding: 8px 8px 8px 14px;
+  border-radius: var(--raio-sm);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+  font-size: 0.8rem;
+}
+
+#botao-centralizar {
+  border: none;
+  border-radius: 6px;
+  background: var(--vermelho);
+  color: #fff;
+  font-family: var(--fonte);
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 10px 16px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#botao-centralizar:active { filter: brightness(1.2); }
 
 /* --------- Rodapé: laser, tela preta, travar, grade e encerrar --------- */
 
@@ -603,13 +687,16 @@ kbd {
 #rodape-controle button em { font-style: normal; }
 
 #rodape-controle button {
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: var(--cor-superficie-escura);
-  color: var(--cor-texto-claro);
-  border-radius: 12px;
-  padding: 13px 4px;
-  font-size: 0.85rem;
+  border: 1px solid var(--borda);
+  background: var(--bg-card);
+  color: var(--texto-suave);
+  font-family: var(--fonte);
+  border-radius: var(--raio-sm);
+  padding: 12px 4px;
+  font-size: 0.78rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -619,27 +706,29 @@ kbd {
   margin-bottom: 2px;
 }
 
-#rodape-controle button:active { filter: brightness(1.3); }
+#rodape-controle button:active { filter: brightness(1.35); }
 
 #botao-blackout.ativo {
-  background: var(--cor-atencao);
-  border-color: var(--cor-atencao);
+  background: var(--grad-laranja);
+  border-color: var(--laranja);
   color: #fff;
+  box-shadow: var(--brilho-laranja);
 }
 
 #botao-travar.ativo {
-  background: var(--cor-primaria);
-  border-color: var(--cor-primaria);
-  color: #fff;
+  background: rgba(59, 130, 246, 0.18);
+  border-color: rgba(59, 130, 246, 0.55);
+  color: #60a5fa;
 }
 
 #botao-laser.ativo {
-  background: #b3261e;
-  border-color: #b3261e;
-  color: #fff;
+  background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.55);
+  color: #f87171;
+  box-shadow: 0 0 18px rgba(239, 68, 68, 0.25);
 }
 
-#botao-encerrar { color: #f2a5a0; }
+#botao-encerrar { color: #f87171; }
 
 /* --------- Touchpad do laser (celular sem sensor de movimento) --------- */
 
@@ -647,27 +736,28 @@ kbd {
   position: fixed;
   inset: 0;
   z-index: 85;
-  background: rgba(13, 17, 23, 0.97);
+  background: var(--bg);
+  background-image: var(--grad-fundo);
   display: flex;
   flex-direction: column;
   padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
-  color: var(--cor-texto-claro);
+  color: var(--texto);
 }
 
 #laser-touch-overlay p {
   text-align: center;
   margin: 4px 0 12px;
-  color: #93a4b8;
-  font-size: 0.95rem;
+  color: var(--texto-suave);
+  font-size: 0.9rem;
 }
 
 #laser-touch-area {
   flex: 1;
-  border: 2px dashed rgba(255, 255, 255, 0.25);
-  border-radius: 16px;
+  border: 2px dashed var(--borda-clara);
+  border-radius: var(--raio);
   background:
-    radial-gradient(circle, rgba(255, 23, 68, 0.25) 0 6px, transparent 7px) center / 100% 100% no-repeat,
-    var(--cor-superficie-escura);
+    radial-gradient(circle, rgba(239, 68, 68, 0.35) 0 6px, transparent 7px) center / 100% 100% no-repeat,
+    var(--bg-card);
   touch-action: none;
 }
 
@@ -679,7 +769,8 @@ kbd {
   position: fixed;
   inset: 0;
   z-index: 80;
-  background: var(--cor-fundo-escuro);
+  background: var(--bg);
+  background-image: var(--grad-fundo);
   display: flex;
   flex-direction: column;
 }
@@ -689,15 +780,19 @@ kbd {
   align-items: center;
   justify-content: space-between;
   padding: 14px;
-  background: var(--cor-superficie-escura);
-  color: var(--cor-texto-claro);
-  font-weight: 600;
+  background: var(--bg);
+  border-bottom: 1px solid var(--borda);
+  color: var(--ciano);
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 #fechar-grade {
-  border: none;
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--cor-texto-claro);
+  border: 1px solid var(--borda);
+  background: var(--bg-card);
+  color: var(--texto-suave);
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -716,13 +811,15 @@ kbd {
 }
 
 .grade-item {
-  border: 2px solid transparent;
-  border-radius: 8px;
-  background: var(--cor-superficie-escura);
-  color: var(--cor-texto-claro);
+  border: 2px solid var(--borda);
+  border-radius: var(--raio-sm);
+  background: var(--bg-card);
+  color: var(--texto);
+  font-family: var(--fonte);
   padding: 6px;
   cursor: pointer;
   text-align: center;
+  transition: border-color 0.15s;
 }
 
 .grade-item img {
@@ -730,14 +827,15 @@ kbd {
   border-radius: 4px;
   display: block;
   margin-bottom: 4px;
-  background: #000;
+  background: #05080f;
 }
 
-.grade-item span { font-size: 0.85rem; font-weight: 600; }
+.grade-item span { font-size: 0.85rem; font-weight: 700; }
 
 .grade-item.atual {
-  border-color: var(--cor-primaria-clara);
-  background: #1d2c42;
+  border-color: var(--ciano);
+  background: rgba(34, 211, 238, 0.1);
+  box-shadow: var(--brilho-azul);
 }
 
 /* --------- Fim da apresentação (celular) --------- */
@@ -752,8 +850,7 @@ kbd {
    ========================================================================== */
 
 .pagina-tutorial {
-  background: var(--cor-fundo-claro);
-  color: var(--cor-texto);
+  color: var(--texto);
 }
 
 .tutorial-topo {
@@ -768,12 +865,14 @@ kbd {
 }
 
 .passo {
-  background: var(--cor-superficie);
+  background: var(--bg-card);
+  border: 1px solid var(--borda);
   border-radius: var(--raio);
-  box-shadow: var(--sombra);
+  box-shadow: var(--sombra-card);
   padding: 26px 30px;
   margin-top: 22px;
-  line-height: 1.6;
+  line-height: 1.7;
+  font-size: 0.9rem;
 }
 
 .passo h2 {
@@ -781,8 +880,10 @@ kbd {
   align-items: center;
   gap: 12px;
   margin: 0 0 14px;
-  font-size: 1.25rem;
-  color: var(--cor-primaria-forte);
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--texto);
 }
 
 .passo .num {
@@ -790,13 +891,16 @@ kbd {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: var(--cor-primaria);
+  background: var(--grad-botao);
   color: #fff;
-  font-size: 1rem;
+  font-size: 0.95rem;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
+.passo p, .passo li { color: var(--texto-suave); }
+.passo strong, .passo b { color: var(--texto); }
 
 .passo figure {
   margin: 14px 0;
@@ -805,14 +909,14 @@ kbd {
 
 .passo img {
   max-width: 100%;
-  border-radius: 10px;
-  border: 1px solid var(--cor-borda);
-  box-shadow: 0 6px 18px rgba(13, 24, 38, 0.10);
+  border-radius: var(--raio-sm);
+  border: 1px solid var(--borda-clara);
+  box-shadow: var(--sombra-card);
 }
 
 .passo figcaption {
-  font-size: 0.83rem;
-  color: var(--cor-texto-suave);
+  font-size: 0.78rem;
+  color: var(--texto-apagado);
   margin-top: 8px;
 }
 
@@ -828,23 +932,26 @@ kbd {
 .par-imagens .texto-ao-lado { flex: 2 1 320px; }
 
 .passo .atencao {
-  background: #fff6e5;
-  border: 1px solid #f0d9a8;
-  border-radius: 8px;
+  background: rgba(234, 179, 8, 0.1);
+  border: 1px solid rgba(234, 179, 8, 0.35);
+  border-radius: var(--raio-sm);
   padding: 12px 16px;
-  color: #7a5200;
+  color: #fde047;
 }
 
+.passo .atencao strong { color: #fde047; }
+
 .passo code {
-  background: #eef2f7;
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 4px;
   padding: 1px 6px;
+  color: var(--laranja);
 }
 
 .passo kbd {
-  background: #eef2f7;
-  border: 1px solid var(--cor-borda);
-  color: var(--cor-texto);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--texto);
 }
 
 .tutorial-rodape {
@@ -857,13 +964,28 @@ kbd {
 .tutorial-rodape .faixa-logos { border-top: none; }
 
 @media print {
+  .pagina-tutorial { background: #fff !important; background-image: none !important; color: #111; }
   .tutorial-topo nav { display: none; }
-  .passo { box-shadow: none; border: 1px solid var(--cor-borda); page-break-inside: avoid; }
-  body { background: #fff; }
+  .passo {
+    background: #fff;
+    box-shadow: none;
+    border: 1px solid #c8d3de;
+    page-break-inside: avoid;
+  }
+  .passo h2, .passo strong, .passo b, .pagina-tutorial .logo span { color: #10233d; }
+  .passo p, .passo li, .pagina-tutorial .subtitulo { color: #33414f; }
+  .passo figcaption { color: #5a6b7d; }
+  .passo .atencao { color: #7a5200; background: #fff6e5; border-color: #f0d9a8; }
+  .passo .atencao strong { color: #7a5200; }
+  .passo code { color: #c2410c; background: #f4f8fc; }
+  .passo kbd { color: #10233d; background: #f4f8fc; border-color: #c8d3de; }
 }
 
-/* --------- Celular deitado (pouca altura): botões lado a lado --------- */
+/* ==========================================================================
+   Responsivo
+   ========================================================================== */
 
+/* Celular deitado (pouca altura): botões lado a lado */
 @media (orientation: landscape) and (max-height: 520px) {
   #minis { display: none; }
 
